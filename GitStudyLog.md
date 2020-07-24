@@ -5,13 +5,15 @@
 ### 1 Git本地命令
 
 ```
-git help "command"
-git "command" help
-git "command" -h
-man git-"command"
+git help <command>
+git <command> help
+git <command> -h
+man git-<command>
 ```
 
-获取命令"command"的用法说明，例如git help add、git help config。
+获取命令command的用法说明，例如git help add、git help config。
+
+#### 1.1 常用命令
 
 ```
 git init
@@ -31,8 +33,8 @@ git status -s/--short
 ![image-20200724191626665](C:\Users\Admin\AppData\Roaming\Typora\typora-user-images\image-20200724191626665.png)
 
 ```
-git add "filename"
-git add "directory"
+git add <filename>
+git add <directory>
 ```
 
 将“filename”文件添加到Git仓库，但是未提交。git add后面如果是目录的话，将会递归地（添加）跟踪该目录下的所有文件。git add命令的理解为“精确地将内容添加到下一次提交中”。**运行了git add之后又作了修订的文件，需要重新运行git add把最新版本重新暂存起来**。
@@ -40,10 +42,10 @@ git add "directory"
 （git add是一个多功能的命令，以后用到再来添加）
 
 ```
-git commit "filename" -m "a description of the commit information"
+git commit <filename> -m "a description of the commit information"
 ```
 
-将“filename”文件提交到Git仓库，并添加说明信息
+将filename文件提交到Git仓库，并添加说明信息
 
 git add是先把改动添加到一个”暂存区“，临时保存你的改动，而git commit才是最后真正的提交。
 
@@ -60,41 +62,61 @@ git branch
 查看分支
 
 ```
-git branch "branch_name"	
-git branch -d "branch_name"
+git branch <branch_name>
+git branch -d <branch_name>
 ```
 
-创建一个名字为"branch_name"的分支。删除名字为"branch_name"的分支，-D为强制删除。
+创建一个名字为branch_name的分支。删除名字为branch_name的分支，-D为强制删除。
 
 ```
-git checkout "branch_name"
+git merge <branch_name>
 ```
 
-切换到名字为"branch_name"的分支。
+首先要切换到master分支，执行git merge branch_name，将名字为branch_name的分支合并到master分支。
 
 ```
-git checkout -b "branch_name"
+git tag <tag_name>
 ```
 
-创建并切换到名字为"branch_name"的分支。
+将当前Git仓库版本（当前的代码或文件版本）打上标签tag_name，git tag可以查看历史tag记录。
+
+#### 1.2 checkout
 
 ```
-git merge "branch_name"
+git checkout <branch_name>
 ```
 
-首先要切换到master分支，执行git merge "branch_name"，将名字为"branch_name"的分支合并到master分支。
+切换到名字为branch_name的分支。
 
 ```
-git tag "tag_name"
+git checkout -b <branch_name>
 ```
 
-将当前Git仓库版本（当前的代码或文件版本）打上标签"tag_name"，git tag可以查看历史tag记录。
+创建并切换到名字为branch_name的分支。
 
 ```
-git checkout "tag_name"
+git checkout <commit_id>
 ```
 
-切换到名字为"tag_name"时的Git仓库版本
+切换到某次commit。
+
+```
+git checkout <tag_name>
+```
+
+切换到名字为tag_name时的Git仓库版本
+
+checkout除了有“切换”的意思，checkout还有撤销的作用，假如你现在在实现一个小功能，快写完的时候，突然需求变了，之前写的代码完全不能用了，好在你还没有将该文件git add进暂存区，这时可以用下面的命令直接将文件还原到修改之前的样子
+
+```
+git checkout <filename>
+```
+
+checkout只能撤销还没有add进缓存区的文件。
+
+#### 1.3 stash
+
+38页
 
 ### 2 Git远程仓库命令
 
@@ -162,7 +184,7 @@ git config --list
 查看所有的配置信息
 
 ```
-git config "key"
+git config <key>
 ```
 
 查看某一项的配置信息，例如git config user.name。
@@ -212,7 +234,33 @@ git config --global alias.my_test_ssh "git@github.com:TMDWang/my_test.git"
 
 ![image-20200724134334706](C:\Users\Admin\AppData\Roaming\Typora\typora-user-images\image-20200724134334706.png)
 
-### 5 忽略文件
+### 5 diff 比较文件差异
+
+```
+git diff <commit_id1> <commit_id2>
+```
+
+比较两次提交之间的差异，commit_id是每次commit的SHA1值，可以根据git log看到，是长度为40的字符串。
+
+```
+git diff <branch1> <branch2>
+```
+
+比较两个分支之间的差异
+
+```
+git diff --staged
+```
+
+比较暂存区和版本库之间的差异
+
+
+
+
+
+### 6 忽略文件
+
+
 
 第35页，晚上添加
 
