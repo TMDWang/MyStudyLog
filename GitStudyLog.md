@@ -14,7 +14,19 @@ git init
 git status
 ```
 
-查看状态，默认直接在master分支，可以查看文件夹下文档所处状态（待补充）
+查看状态，默认直接在master分支，可以查看文件夹下文档所处状态。
+
+修改文件后的状态，GitStudyLog.md文件被修改但是未添加到暂存区。
+
+![image-20200724133150879](C:\Users\Admin\AppData\Roaming\Typora\typora-user-images\image-20200724133150879.png)
+
+添加到暂存区，未提交状态，此时可以用"git restore --staged filename"命令撤销暂存区的内容。
+
+![image-20200724133613713](C:\Users\Admin\AppData\Roaming\Typora\typora-user-images\image-20200724133613713.png)
+
+
+
+
 
 ```
 git add "filename"
@@ -134,7 +146,13 @@ git clone git@github.com:TMDWang/MyStudyLog.git
 
 ### 3 config & alias
 
-#### 3.1 config
+#### 3.1 config（Git配置）
+
+```
+git config --list
+```
+
+查看所有的配置信息
 
 ```
 git config --global user.name "TMDWang"
@@ -149,7 +167,7 @@ git config --global core.editor "'D:/Notepad++/notepad++.exe' -multiInst -notabb
 
 配置默认的编辑器，可以在安装程序时选择，也可以用上面的命令修改。
 
-#### 3.2 alias
+#### 3.2 alias（别名、外号）
 
 ```
 git config --global alias.lg "log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative"
@@ -161,7 +179,7 @@ git config --global alias.lg "log --graph --pretty=format:'%Cred%h%Creset -%C(ye
 git config --global alias.my_test_ssh "git@github.com:TMDWang/my_test.git"
 ```
 
-将自己某个仓库"git@github.com:TMDWang/my_test.git"取别名my_test_ssh。
+将自己仓库的某个项目ssh地址（"git@github.com:TMDWang/my_test.git"）取个简短的别名my_test_ssh。
 
 ## 二 分支
 
