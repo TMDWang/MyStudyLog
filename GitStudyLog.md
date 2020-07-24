@@ -1,8 +1,17 @@
 # Git Study Log
 
-## 一  常用命令
+## 一  Git基础
 
 ### 1 Git本地命令
+
+```
+git help "command"
+git "command" help
+git "command" -h
+man git-"command"
+```
+
+获取命令"command"的用法说明，例如git help add、git help config。
 
 ```
 git init
@@ -12,27 +21,23 @@ git init
 
 ```
 git status
+git status -s/--short
 ```
 
-查看状态，默认直接在master分支，可以查看文件夹下文档所处状态。
+查看状态，默认直接在master分支，可以查看文件夹下文档所处状态。在工作目录下的每一个文件有且仅有两种状态：**已跟踪**或**未跟踪**，已跟踪的文件是指那些被纳入版本控制的文件（即Git已经知道的文件），在上一次快照中有它们的记录，在工作一段时间后，它们的状态可能是未修改、已修改或已放入暂存区。
 
-修改文件后的状态，GitStudyLog.md文件被修改但是未添加到暂存区。
+第二种查看状态的命令可以得到一种格式更为简洁的输出。
 
-![image-20200724133150879](C:\Users\Admin\AppData\Roaming\Typora\typora-user-images\image-20200724133150879.png)
-
-添加到暂存区，未提交状态，此时可以用"git restore --staged filename"命令撤销暂存区的内容。
-
-![image-20200724133613713](C:\Users\Admin\AppData\Roaming\Typora\typora-user-images\image-20200724133613713.png)
-
-
-
-
+![image-20200724191626665](C:\Users\Admin\AppData\Roaming\Typora\typora-user-images\image-20200724191626665.png)
 
 ```
 git add "filename"
+git add "directory"
 ```
 
-将“filename”文件添加到Git仓库，但是未提交
+将“filename”文件添加到Git仓库，但是未提交。git add后面如果是目录的话，将会递归地（添加）跟踪该目录下的所有文件。git add命令的理解为“精确地将内容添加到下一次提交中”。**运行了git add之后又作了修订的文件，需要重新运行git add把最新版本重新暂存起来**。
+
+（git add是一个多功能的命令，以后用到再来添加）
 
 ```
 git commit "filename" -m "a description of the commit information"
@@ -134,7 +139,7 @@ git remote add origin git@github.com:TMDWang/MyStudyLog.git
 git remote -v
 ```
 
-查看当前项目由哪些远程仓库
+查看当前项目有哪些远程仓库
 
 ##### 2.1.2 Clone自己的项目
 
@@ -143,6 +148,8 @@ git clone git@github.com:TMDWang/MyStudyLog.git
 ```
 
 这样就把远程仓库中的MyStudyLog项目clone到了本地，此时该项目本身已经是一个git仓库，不需要执行git init进行初始化，而且已经关联好了远程仓库，我们只需要在该目录下修改或者添加文件，然后进行commit之后，就可以git push origin master,向远程仓库提交代码了。
+
+Git支持多种数据传输协议，http://协议、git://协议、SSH传输协议（上例所使用）。
 
 ### 3 config & alias
 
@@ -153,6 +160,12 @@ git config --list
 ```
 
 查看所有的配置信息
+
+```
+git config "key"
+```
+
+查看某一项的配置信息，例如git config user.name。
 
 ```
 git config --global user.name "TMDWang"
@@ -180,6 +193,28 @@ git config --global alias.my_test_ssh "git@github.com:TMDWang/my_test.git"
 ```
 
 将自己仓库的某个项目ssh地址（"git@github.com:TMDWang/my_test.git"）取个简短的别名my_test_ssh。
+
+### 4 工作流程（一般情况下）
+
+在本地项目中完成工作之后，git status可以查看修改文件后的状态，GitStudyLog.md文件被修改但是未添加到暂存区。
+
+![image-20200724133150879](C:\Users\Admin\AppData\Roaming\Typora\typora-user-images\image-20200724133150879.png)
+
+添加到暂存区，未提交状态，此时可以用"git restore --staged filename"命令撤销暂存区的内容。
+
+![image-20200724133613713](C:\Users\Admin\AppData\Roaming\Typora\typora-user-images\image-20200724133613713.png)
+
+提交到仓库，此时的状态为空。然后将本地同步到远程（git push origin master），之后可以进行修改再add、commit、同步......。
+
+![image-20200724133835998](C:\Users\Admin\AppData\Roaming\Typora\typora-user-images\image-20200724133835998.png)
+
+同步到远程仓库
+
+![image-20200724134334706](C:\Users\Admin\AppData\Roaming\Typora\typora-user-images\image-20200724134334706.png)
+
+### 5 忽略文件
+
+第35页，晚上添加
 
 ## 二 分支
 
