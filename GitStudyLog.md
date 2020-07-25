@@ -328,5 +328,86 @@ git diff --staged
 
 ## 二 分支
 
-42页开始，今晚解决掉它！加油！！！
+通常我们默认都会有一个主分支叫master。
 
+### 2.1 常用命令
+
+```
+git branch develop
+```
+
+创建一个基于当前master分支且名字为develop的新分支，此时develop分支与master主分支的内容完全一样。
+
+```
+git checkout develop
+```
+
+切换到develop分支。
+
+```
+git checkout -b develop
+```
+
+合并以上两步，新建develop分支并切到该分支下。
+
+```
+git push origin develop
+```
+
+将develop分支推送到名字为origin的远程仓库。
+
+```
+git branch
+git branch -r
+```
+
+查看本地分支列表，查看远程分支列表
+
+```
+git branch -d develop
+git branch -D develop
+```
+
+删除本地develop分支，强制删除本地develop分支
+
+```
+git push origin :develop
+```
+
+删除远程分支
+
+```
+git checkout develop origin/develop
+```
+
+如果远程有个分支develop，而本地没有，执行上条命令可以将远程分支迁到本地。
+
+```
+git checkout -b develop origin/develop
+```
+
+将远程分支迁到本地并切换到该分支。
+
+### 2.2 分支管理流程Git Flow
+
+Git Flow是一种比较成熟的分支管理流程。整个工作流程如下图所示。
+
+![The “git flow” branching model](illustration/git-flow.png)
+
+Github地址：https://github.com/nvie/gitflow
+
+相关博客：http://stormzhang.com/git/2014/01/29/git-flow/
+
+
+
+
+
+
+
+
+
+## 参考文献
+
+[1] stormzhang,《从 0 开始学习 GitHub 系列》，
+
+[2] Scott Chacon & Ben Straub, 《Pro Git》,
