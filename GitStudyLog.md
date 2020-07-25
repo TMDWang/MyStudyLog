@@ -116,7 +116,67 @@ checkout只能撤销还没有add进缓存区的文件。
 
 #### 1.3 stash
 
-38页
+代码未完成之前一般不建议commit，会产生垃圾commit。当你正在一个新的分支上开发新的功能的时候，突然有一个紧急的bug需要修复，此时可以利用**stash**命令保存我们现在分支中的代码，让我们暂时切换到其他分支，修复完bug在切换回原来的分支。使用该命令的前提是没有进行commit，add代码也没关系。
+
+```
+git stash
+```
+
+将当前分支**所有没有commit**的代码先暂存起来，这时执行git status会发现当前分支非常干净，几乎看不到任何改动，之前修改的代码页看不见了，其实是stash起来了。
+
+```
+git stash list
+```
+
+查看stash记录，会查看到执行git stash命令的分支，这时就可以切换到其他分支，修复bug，结束之后，再切换回原来的分支继续之前未完成的工作。
+
+```
+git stash apply
+```
+
+回复执行git stash命令的分支。
+
+```
+git stash drop
+```
+
+把需要的代码恢复完成后，最好将暂存区的这次stash记录删除。
+
+```
+git stash pop
+```
+
+该命令不仅将stash的代码恢复回来，还自动帮你删除了这条stash记录。确保万一，可以执行git stash list查看一下是否还有该次stash记录。
+
+git stash clear
+
+清空所有暂存区的记录，drop是只删除一条记录，后面加上stash_id可以删除指定的stash记录，不加参数就是删除最近的一条记录，clear是清空记录。
+
+#### 1.4 merge & rebase
+
+rebase将两个分支先进行比较，按照一定的规则（时间？，内容？）合并，使得合并之后的代码很有逻辑，但是很难清晰的知道代码的出处。而merge则直接将另一分支的代码放到当前分支，虽然简单粗暴，但是很清楚的知道代码的来源。
+
+##### 1.4.1 merge合并
+
+merge是合并的意思，我们在一个featureA分支开发完一个功能，需要合并到主分支master上时，可以进行如下操作
+
+```
+git checkout master
+git merge featureA
+```
+
+首先切换到master分支，然后把featureA分支合并到master分支上。
+
+##### 1.4.2 rebase合并
+
+rebase也是合并的意思，其用法如下
+
+```
+git checkout master
+git rebase featureA
+```
+
+首先切换到master分支，然后将featureA分支合并到当前分支。
 
 ### 2 Git远程仓库命令
 
@@ -254,11 +314,13 @@ git diff --staged
 
 比较暂存区和版本库之间的差异
 
+### 6 解决冲突
 
+在两个分支上更改了同一文件，当合并到主分支master上时，第二次commit会提示冲突conflicts。此时需要手动解决这个冲突之后重新进行提交。
 
+（待补充）
 
-
-### 6 忽略文件
+### 7 忽略文件
 
 
 
@@ -266,5 +328,5 @@ git diff --staged
 
 ## 二 分支
 
-
+42页开始，今晚解决掉它！加油！！！
 
