@@ -30,7 +30,7 @@ git status -s/--short
 
 第二种查看状态的命令可以得到一种格式更为简洁的输出。
 
-![image-20200724191626665](C:\Users\Admin\AppData\Roaming\Typora\typora-user-images\image-20200724191626665.png)
+![image-20200724191626665](./illustration/image-20200724191626665.png)
 
 ```
 git add <filename>
@@ -280,19 +280,19 @@ git config --global alias.my_test_ssh "git@github.com:TMDWang/my_test.git"
 
 在本地项目中完成工作之后，git status可以查看修改文件后的状态，GitStudyLog.md文件被修改但是未添加到暂存区。
 
-![image-20200724133150879](C:\Users\Admin\AppData\Roaming\Typora\typora-user-images\image-20200724133150879.png)
+![image-20200724133150879](./illustration/image-20200724133150879.png)
 
 添加到暂存区，未提交状态，此时可以用"git restore --staged filename"命令撤销暂存区的内容。
 
-![image-20200724133613713](C:\Users\Admin\AppData\Roaming\Typora\typora-user-images\image-20200724133613713.png)
+![image-20200724133613713](./illustration/image-20200724133613713.png)
 
 提交到仓库，此时的状态为空。然后将本地同步到远程（git push origin master），之后可以进行修改再add、commit、同步......。
 
-![image-20200724133835998](C:\Users\Admin\AppData\Roaming\Typora\typora-user-images\image-20200724133835998.png)
+![image-20200724133835998](./illustration/image-20200724133835998.png)
 
 同步到远程仓库
 
-![image-20200724134334706](C:\Users\Admin\AppData\Roaming\Typora\typora-user-images\image-20200724134334706.png)
+![image-20200724134334706](./illustration/image-20200724134334706.png)
 
 ### 5 diff 比较文件差异
 
