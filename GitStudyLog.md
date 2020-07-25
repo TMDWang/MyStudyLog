@@ -4,6 +4,8 @@
 
 ### 1 Git本地命令
 
+#### 1.1 常用命令
+
 ```
 git help <command>
 git <command> help
@@ -12,8 +14,6 @@ man git-<command>
 ```
 
 获取命令command的用法说明，例如git help add、git help config。
-
-#### 1.1 常用命令
 
 ```
 git init
@@ -297,6 +297,22 @@ git config --global alias.my_test_ssh "git@github.com:TMDWang/my_test.git"
 ### 5 diff 比较文件差异
 
 ```
+git diff
+```
+
+不加参数，可以查看尚未暂存的文件更新了哪些部分。此命令比较的是工作目录中当前文件和暂存区域快照之间的差异，也就是修改之后还没有暂存起来的内容变化。下图为执行该命令后的输出。
+
+![image-20200726011820244](illustration/image-20200726011820244.png)
+
+其中前面带有+号的是增加的内容，带有-号的是删除的内容。
+
+```
+git diff --staged/--cached
+```
+
+查看已暂存的将要添加到下次提交的内容，这条命令可以对比已暂存文件和最后一次提交的文件差异。
+
+```
 git diff <commit_id1> <commit_id2>
 ```
 
@@ -308,11 +324,13 @@ git diff <branch1> <branch2>
 
 比较两个分支之间的差异
 
+比较文件差异也可以使用图形化的工具或外部diff工具来比较差异。可以使用git difftool命令来调用emerge或vimdiff等软件**输出**diff的分析结果。使用下面的命令可以查看你系统中支持哪些Git Diff插件。（**配置difftool**，待补充）
+
 ```
-git diff --staged
+git difftool --tool-help
 ```
 
-比较暂存区和版本库之间的差异
+![image-20200726013420728](illustration/image-20200726013420728.png)
 
 ### 6 解决冲突
 
@@ -322,9 +340,31 @@ git diff --staged
 
 ### 7 忽略文件
 
+一般总会有些文件无需纳入Git管理，也不希望它们总出现在未跟踪文件列表，通常都是一些自动生成的文件，比如日志、编译过程中创建的临时文件等。在这种情况下，我们可以创建一个名为.gitignore的文件，列出要忽略的文件。要养成一开始就为你的新仓库设置好.gitignore文件的习惯，以免将来误提交无用的文件。最简单的情况下，一个仓库可能只有根目录下一个.gitignore文件，它递归应用到整个仓库中。然而，子目录下也可以有额外的.gitignore文件，文件中的规则只作用于它所在的目录中。语法规则示例如下：
+
+```
+*.[oa]			# 忽略所有以.o、.a结尾的文件
+!lib.a			# 但跟踪所有的lib.a文件，即使前面忽略了.a文件
+*~				# 忽略所有名字以波浪符（~）结尾的文件
+/TODO			# 只忽略当前目录下的TODO文件，不忽略其他目录下的
+build/			# 忽略任何目录下名为build的文件夹
+doc/*.txt		# 忽略doc/notes.txt，但不忽略doc/server/arch.txt
+doc/**/*.pdf	# 忽略doc/目录及其所有子目录下的.pdf文件
+```
+
+文件.gitignore的格式如下：
+
+- 所有空行或者以#开头的行都会被Git忽略。
+- 可以使用标准的glob模式匹配，它会递归地应用在整个工作区。
+- 匹配模式可以以（/）开头防止递归。
+- 匹配模式可以以（/）结尾指定目录。
+- 要忽略指定模式以外的文件或目录，可以在模式前加上叹号（！）取反。
+
+所谓的glob模式是指shell所使用的简化了的**正则表达式**。十分详细的针对数十种项目及语言的.gitignore文件列表：https://github.com/github/gitignore。
+
+简单的通配符列表（待补充）
 
 
-第35页，晚上添加
 
 ## 二 分支
 
@@ -408,6 +448,6 @@ Github地址：https://github.com/nvie/gitflow
 
 ## 参考文献
 
-[1] stormzhang,《从 0 开始学习 GitHub 系列》，
+[1] Stormzhang,《从 0 开始学习 GitHub 系列》.
 
-[2] Scott Chacon & Ben Straub, 《Pro Git》,
+[2] Scott Chacon & Ben Straub, 《Pro Git》.
