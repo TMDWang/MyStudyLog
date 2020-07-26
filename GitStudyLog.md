@@ -4,7 +4,7 @@
 
 ### 1 Git本地命令
 
-#### 1.1 常用命令
+#### 1.1 git help查看帮助
 
 ```
 git help <command>
@@ -15,11 +15,15 @@ man git-<command>
 
 获取命令command的用法说明，例如git help add、git help config。
 
+#### 1.2 git init初始化仓库
+
 ```
 git init
 ```
 
 将当前文件夹初始化为Git仓库，git init初始化Git仓库之后会默认生成一个主分支master，也是你所在的默认分支，基本上是实际开发中正式环境下的分支，一般情况下master分支不会轻易直接在上面操作。
+
+#### 1.3 git status查看状态
 
 ```
 git status
@@ -32,6 +36,8 @@ git status -s/--short
 
 ![image-20200724191626665](./illustration/image-20200724191626665.png)
 
+#### 1.4 git add将修改添加到暂存
+
 ```
 git add <filename>
 git add <directory>
@@ -41,19 +47,79 @@ git add <directory>
 
 （git add是一个多功能的命令，以后用到再来添加）
 
+#### 1.5 git commit提交暂存区域快照
+
 ```
 git commit <filename> -m "a description of the commit information"
+git commit
+git commit -v
 ```
 
-将filename文件提交到Git仓库，并添加说明信息
+将filename文件提交到Git仓库，并添加说明信息。执行第二条会将所有执行过git add的文件提交，并打开默认的文本编辑器提示你输出提交说明。执行第三条可以查看更详细的内容修改提示。
 
-git add是先把改动添加到一个”暂存区“，临时保存你的改动，而git commit才是最后真正的提交。
+在执行git commit之前，应该执行git status命令查看一下是否还有修改过的文件或者新添加的未追踪的文件没有被add进暂存区。git add是先把改动添加到一个”暂存区“，临时保存你的改动，而git commit才是最后真正的提交。
+
+```
+git commit -a
+```
+
+加上-a选项，Git会自动把所有已跟踪过的文件暂存起来一并提交，从而跳过git add步骤，这很方便，但是有时会将不需要的文件添加到提交中（我觉得这句话的意思是，没有追踪过的文件也会暂存并提交）。
+
+#### 1.6 git mv移动文件（重命名？）
+
+```
+git mv file_from file_to
+```
+
+将文件file_from更名为file_to，与下面三行命令作用相同
+
+```
+mv file_from file_to
+git rm file_from
+git add file_to
+```
+
+#### 1.7git log查看提交历史
 
 ```
 git log
 ```
 
-查看所有的commit记录
+不传入任何参数的默认情况下，会按照时间先后顺序查看所有的commit记录，最近的更新在最上面。这个命令会列出每个提交的SHA-1校验和、作者的名字和邮箱地址、提交时间和提交说明，如下图所示。
+
+![image-20200726191534116](illustration/image-20200726191534116.png)
+
+```
+git log -p/--patch
+git log -2
+```
+
+按补丁的格式输出每次提交所引入的差异。显示最近的两次提交。
+
+```
+git log --stat
+```
+
+查看每次提交的简略统计信息，列出所有被修改过的文件、有多少文件被修改了以及被修改过的文件的哪些行被移除或是添加了。在最后对每次提交做一个总结。
+
+```
+git log --pretty=oneline/short/full/fuller
+git log --pretty=format:"%h - %an, %ar : %s"
+```
+
+使用不同于默认格式的方式展示提交历史。下图为git log --pretty=format长用选项。
+
+![image-20200726193534192](illustration/image-20200726193534192.png)
+
+
+
+下图为git log的常用选项
+
+![image-20200726193844552](illustration/image-20200726193844552.png)
+
+
+
+#### 待修改
 
 ```
 git branch
@@ -80,7 +146,7 @@ git tag <tag_name>
 
 将当前Git仓库版本（当前的代码或文件版本）打上标签tag_name，git tag可以查看历史tag记录。
 
-#### 1.2 checkout
+#### 1.8 git checkout
 
 ```
 git checkout <branch_name>
@@ -114,7 +180,7 @@ git checkout <filename>
 
 checkout只能撤销还没有add进缓存区的文件。
 
-#### 1.3 stash
+#### 1.9 git stash
 
 代码未完成之前一般不建议commit，会产生垃圾commit。当你正在一个新的分支上开发新的功能的时候，突然有一个紧急的bug需要修复，此时可以利用**stash**命令保存我们现在分支中的代码，让我们暂时切换到其他分支，修复完bug在切换回原来的分支。使用该命令的前提是没有进行commit，add代码也没关系。
 
@@ -152,11 +218,11 @@ git stash clear
 
 清空所有暂存区的记录，drop是只删除一条记录，后面加上stash_id可以删除指定的stash记录，不加参数就是删除最近的一条记录，clear是清空记录。
 
-#### 1.4 merge & rebase
+#### 1.10 git merge & git rebase
 
 rebase将两个分支先进行比较，按照一定的规则（时间？，内容？）合并，使得合并之后的代码很有逻辑，但是很难清晰的知道代码的出处。而merge则直接将另一分支的代码放到当前分支，虽然简单粗暴，但是很清楚的知道代码的来源。
 
-##### 1.4.1 merge合并
+##### 1.10.1 git merge合并
 
 merge是合并的意思，我们在一个featureA分支开发完一个功能，需要合并到主分支master上时，可以进行如下操作
 
@@ -167,7 +233,7 @@ git merge featureA
 
 首先切换到master分支，然后把featureA分支合并到master分支上。
 
-##### 1.4.2 rebase合并
+##### 1.10.2 git rebase合并
 
 rebase也是合并的意思，其用法如下
 
