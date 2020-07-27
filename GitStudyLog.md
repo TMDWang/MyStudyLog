@@ -60,12 +60,35 @@ git commit -v
 在执行git commit之前，应该执行git status命令查看一下是否还有修改过的文件或者新添加的未追踪的文件没有被add进暂存区。git add是先把改动添加到一个”暂存区“，临时保存你的改动，而git commit才是最后真正的提交。
 
 ```
-git commit -a
+git commit -a  # 不推荐的用法
 ```
 
-加上-a选项，Git会自动把所有已跟踪过的文件暂存起来一并提交，从而跳过git add步骤，这很方便，但是有时会将不需要的文件添加到提交中（我觉得这句话的意思是，没有追踪过的文件也会暂存并提交）。
+加上-a选项，Git会自动把所有已跟踪过的文件中的执行修改或删除操作的文件暂存起来并提交，从而跳过git add步骤，这很方便，新加的文件是不能被提交到本地仓库的，建议一般不要使用-a参数，**强烈推荐git add将改动的文件添加到暂存区，再用git commit提交到本地版本库**。
 
-#### 1.6 git mv移动文件（重命名？）
+#### 1.6 git rm移除文件 &  git mv移动文件（重命名？）
+
+##### 1.6.1 git rm
+
+要从Git中移除某个文件，**就必须要从已跟踪文件中移除**（确切的说，是从暂存区域移除），然后提交。如果只是简单的地从工作目录中手工删除文件，运行git status时就会在"Changes not staged for commit"部分（也就是**未暂存清单**，未add清单）看到，然后再运行git rm 记录此次移除文件的操作，下次提交时，该文件就不会再纳入版本管理器了。如果要删除之前修改过或已经add到暂存区的文件，则必须使用强制删除选项-f。这是一种安全特性，用于防止误删尚未添加到快照的数据，这样的数据不能被恢复。
+
+```
+rm <filename>
+git status
+git rm <filename>
+git status
+git commit <filename> -m "delete filename!"
+git push origin master
+```
+
+另一种情况是，我们想把文件从Git仓库中删除（亦即从暂存区域移除），但是仍然希望保留在当前工作目录中。可以使用--cached选项。
+
+```
+git rm --cached <filename>
+```
+
+git rm命令后面可以列出文件或者目录的名字，也可以使用glob模式。
+
+##### 1.6.2 git mv
 
 ```
 git mv file_from file_to
@@ -79,7 +102,7 @@ git rm file_from
 git add file_to
 ```
 
-#### 1.7git log查看提交历史
+#### 1.7 git log查看提交历史
 
 ```
 git log
@@ -87,7 +110,7 @@ git log
 
 不传入任何参数的默认情况下，会按照时间先后顺序查看所有的commit记录，最近的更新在最上面。这个命令会列出每个提交的SHA-1校验和、作者的名字和邮箱地址、提交时间和提交说明，如下图所示。
 
-![image-20200726191534116](illustration/image-20200726191534116.png)
+![image-20200726191534116](./illustration/image-20200726191534116.png)
 
 ```
 git log -p/--patch
@@ -107,19 +130,37 @@ git log --pretty=oneline/short/full/fuller
 git log --pretty=format:"%h - %an, %ar : %s"
 ```
 
-使用不同于默认格式的方式展示提交历史。下图为git log --pretty=format长用选项。
+使用不同于默认格式的方式展示提交历史。下图为git log --pretty=format常用选项。
 
 ![image-20200726193534192](illustration/image-20200726193534192.png)
 
-
-
-下图为git log的常用选项
+当oneline或format与另一个log选项--graph结合使用时尤其有用，**--graph选项**添加了一些ASCII字符串来形象地展示你的分支、合并历史。下图为git log的常用选项。
 
 ![image-20200726193844552](illustration/image-20200726193844552.png)
 
+**限制输出长度**，除了定制输出格式的选项之外，git log还有许多非常实用的限制输出长度选项，例如--since和--until这种按照时间做限制的选项很有用。
 
+```
+git log --since=2.weeks
+```
 
-#### 待修改
+列出最近两周的所有提交。
+
+```
+git log -S <function_name>
+```
+
+-S选项接受一个字符串参数，并且只会显示哪些添加或者删除该字符串的提交。假设你想找出**添加或删除**了对某一个特定**函数的引用**的提交，可以执行上面的命令。
+
+如果只关心某些文件或者目录的历史提交，可以在git log选项的最后指定他们的**路径**，因为是放在最后位置的选项，所以用两个短划线”--“隔开之前的选项和后面限定的路径名。
+
+git log输出选项中常用的有下图所示：
+
+![image-20200726234715469](illustration/image-20200726234715469.png)
+
+**总的来说，git log提供了很多选项检索我们想要知道的提交记录。**
+
+#### 待归类
 
 ```
 git branch
@@ -243,6 +284,10 @@ git rebase featureA
 ```
 
 首先切换到master分支，然后将featureA分支合并到当前分支。
+
+#### 1.11 撤销操作
+
+# 55页
 
 ### 2 Git远程仓库命令
 
