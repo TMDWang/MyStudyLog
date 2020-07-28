@@ -345,6 +345,8 @@ git restore <filename>
 
 ### 2 Git远程仓库命令
 
+#### 2.1 远程操作基础
+
 ```
 ssh-keygen -t rsa
 ```
@@ -358,37 +360,27 @@ git config --global user.email "z.wang@siwave.com.cn"
 
 在提交代码之前要设置自己的用户名与邮箱，这些信息会出现在所有的commit记录里，执行以上代码进行设置（我自己的用户名与邮箱）。
 
-```
-git push origin master
-```
+#### 2.2 关联远程仓库的两种方法
 
-将本地代码推到远程仓库origin的master分支。
-
-```
-git pull origin master
-```
-
-将远程仓库origin的master分支的**最新代码更新**到本地，一般在push之前都会先pull，这样不容易冲突。
-
-#### 2.1 向远程仓库提交代码的两种方法
-
-##### 2.1.1 本地关联GitHub远程仓库
+##### 2.2.1 本地关联GitHub远程仓库
 
 本地已有一个完整的Git仓库，并且进行了很多次commit，可以利用下面的命令将本地仓库里的项目与远程仓库的项目进行关联，关联之前要保证远程仓库Github中已经有该项目（下方命令中的MyStudyLog.git），若没有，要新建一个。
 
 ```
+git remote add <shortname> <url>  # 添加一个新的远程Git仓库，同时指定一个方便的简写。
 git remote add origin git@github.com:TMDWang/MyStudyLog.git
 ```
 
-给当前目录中的项目添加一个远程仓库，"origin"：远程仓库名，可自己随意取名，如果只有一个远程仓库时，一般取名origin，如果有多个远程仓库，比如Github一个，公司一个，这样的话提交到不同的远程仓库就需要指定不同的仓库名字。"git@github.com:TMDWang/MyStudyLog.git"：Github远程仓库SSH地址。给当前项目添加完远程仓库之后，就可以git push origin mastert，向origin的master分支提交代码了。
+给当前目录中的项目添加一个远程仓库，"origin"：远程仓库名，可自己随意取名，如果只有一个远程仓库时，一般取名origin，如果有多个远程仓库，比如Github一个，公司一个，这样的话提交到不同的远程仓库就需要指定不同的仓库名字。跟远程仓库交互时可以用名称代替url。"git@github.com:TMDWang/MyStudyLog.git"：Github远程仓库SSH地址。给当前项目添加完远程仓库之后，就可以git push origin mastert，向origin的master分支提交代码了。
 
 ```
+git remote
 git remote -v
 ```
 
-查看当前项目有哪些远程仓库
+查看当前项目有哪些远程仓库，如果你克隆了自己的仓库，那么至少应该看到origin，这是Git给你克隆的仓库服务器的默认名字。加入-v参数，会显示需要读写远程仓库使用的Git保存的简写与其对应的URL。如果你的远程仓库不止一个，该命令会将他们全部列出。
 
-##### 2.1.2 Clone自己的项目
+##### 2.2.2 Clone自己的项目
 
 ```
 git clone git@github.com:TMDWang/MyStudyLog.git
@@ -397,6 +389,22 @@ git clone git@github.com:TMDWang/MyStudyLog.git
 这样就把远程仓库中的MyStudyLog项目clone到了本地，此时该项目本身已经是一个git仓库，不需要执行git init进行初始化，而且已经关联好了远程仓库，我们只需要在该目录下修改或者添加文件，然后进行commit之后，就可以git push origin master,向远程仓库提交代码了。
 
 Git支持多种数据传输协议，http://协议、git://协议、SSH传输协议（上例所使用）。
+
+#### 2.3 git fetch/git pull拉取远程仓库到本地
+
+```
+git push origin master
+```
+
+将本地代码推到远程仓库origin的master分支。
+
+#### 2.4 本地推送到远程仓库
+
+```
+git pull origin master
+```
+
+将远程仓库origin的master分支的**最新代码更新**到本地，一般在push之前都会先pull，这样不容易冲突。
 
 ### 3 config & alias
 
