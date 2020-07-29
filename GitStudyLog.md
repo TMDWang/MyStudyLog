@@ -187,12 +187,6 @@ git merge <branch_name>
 
 首先要切换到master分支，执行git merge branch_name，将名字为branch_name的分支合并到master分支。
 
-```
-git tag <tag_name>
-```
-
-将当前Git仓库版本（当前的代码或文件版本）打上标签tag_name，git tag可以查看历史tag记录。
-
 #### 1.8 git checkout
 
 ```
@@ -343,6 +337,14 @@ git restore <filename>
 
 更好的做法在Git分支中，即保存当前进度，又回到修改之前的状态。
 
+#### 1.12 git tag打标签
+
+```
+git tag <tag_name>
+```
+
+将当前Git仓库版本（当前的代码或文件版本）打上标签tag_name，git tag可以查看历史tag记录。
+
 ### 2 Git远程仓库命令
 
 #### 2.1 远程操作基础
@@ -360,6 +362,31 @@ git config --global user.email "z.wang@siwave.com.cn"
 
 在提交代码之前要设置自己的用户名与邮箱，这些信息会出现在所有的commit记录里，执行以上代码进行设置（我自己的用户名与邮箱）。
 
+```
+git remote
+git remote -v
+```
+
+查看当前项目有哪些远程仓库，如果你克隆了自己的仓库，那么至少应该看到origin，这是Git给你克隆的仓库服务器的默认名字。加入-v参数，会显示需要读写远程仓库使用的Git保存的简写与其对应的URL。如果你的远程仓库不止一个，该命令会将他们全部列出。
+
+```
+git remote show <remote>
+```
+
+查看某一远程仓库的更多信息。
+
+```
+git remote rename <oldname> <newname>
+```
+
+远程仓库的重命名。同样也会修改你所有远程跟踪的分支名字，oldname/master改为newname/master。
+
+```
+git remote remove <remote>
+```
+
+移除远程仓库，一旦使用这种方式删除了一个远程仓库，那么所有和这个远程仓库相关的远程跟踪分支以及配置信息也会一起被删除。
+
 #### 2.2 关联远程仓库的两种方法
 
 ##### 2.2.1 本地关联GitHub远程仓库
@@ -372,13 +399,6 @@ git remote add origin git@github.com:TMDWang/MyStudyLog.git
 ```
 
 给当前目录中的项目添加一个远程仓库，"origin"：远程仓库名，可自己随意取名，如果只有一个远程仓库时，一般取名origin，如果有多个远程仓库，比如Github一个，公司一个，这样的话提交到不同的远程仓库就需要指定不同的仓库名字。跟远程仓库交互时可以用名称代替url。"git@github.com:TMDWang/MyStudyLog.git"：Github远程仓库SSH地址。给当前项目添加完远程仓库之后，就可以git push origin mastert，向origin的master分支提交代码了。
-
-```
-git remote
-git remote -v
-```
-
-查看当前项目有哪些远程仓库，如果你克隆了自己的仓库，那么至少应该看到origin，这是Git给你克隆的仓库服务器的默认名字。加入-v参数，会显示需要读写远程仓库使用的Git保存的简写与其对应的URL。如果你的远程仓库不止一个，该命令会将他们全部列出。
 
 ##### 2.2.2 Clone自己的项目
 
@@ -393,18 +413,33 @@ Git支持多种数据传输协议，http://协议、git://协议、SSH传输协�
 #### 2.3 git fetch/git pull拉取远程仓库到本地
 
 ```
-git push origin master
+git fetch origin
 ```
 
-将本地代码推到远程仓库origin的master分支。
+该命令会访问远程仓库，从中拉去所有你还没有的数据。执行完成后，你将会拥有那个远程仓库中所有分支的引用，可以随时合并或查看。
 
-#### 2.4 本地推送到远程仓库
+如果你使用clone命令克隆了一个仓库，命令会自动将其添加为远程仓库并默认以”origin“为简写。所以，git fetch origin会抓取克隆（或上一次抓取）后新推送的所有工作。git fetch命令只会将数据下载到你的本地仓库--它并不会自动合并或修改你当前的工作。当准备好时你必须手动将其合并入你的工作。
 
 ```
 git pull origin master
 ```
 
-将远程仓库origin的master分支的**最新代码更新**到本地，一般在push之前都会先pull，这样不容易冲突。
+将远程仓库origin的master分支的**最新代码更新**到本地，**一般在push之前都会先pull，这样不容易冲突**。
+
+如果你的当前分支设置了跟踪远程分支，那么可以用git pull命令来自动抓取并合并该远程分支到当前分支。默认情况下，git clone命令会自动设置本地master分支跟踪克隆的远程仓库的master分支（或其他名字的默认分支）。运行git pull会从最初克隆的服务器上抓取数据并自动尝试合并到当前所在分支。
+
+#### 2.4 本地推送到远程仓库
+
+```
+git push <remote> <branch>
+git push origin master
+```
+
+将本地代码推到远程仓库origin的master分支。只有当你又所克隆服务器的**写入权限**，并且**之前没有人推送过**时，这条命令才能生效。
+
+当你和其他人在同一时间克隆，他们先推送到仓库然后你再推送到仓库时，你的推送会被拒绝。你必须先抓取他们的工作并将其合并进你的工作后才能推送。
+
+
 
 ### 3 config & alias
 
