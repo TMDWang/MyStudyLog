@@ -744,7 +744,6 @@ git branch  # 查看本地分支列表。
 git branch -r  # 查看远程分支列表。
 ```
 
-
 **推送 & 拉取 & 删除远程分支**
 
 ```
@@ -767,7 +766,7 @@ Github地址：https://github.com/nvie/gitflow
 
 
 
-童梦迪和王震都是最聪明的！
+
 
 
 
