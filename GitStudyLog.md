@@ -767,8 +767,8 @@ Github地址：https://github.com/nvie/gitflow
 
 
 在本地master分支上做修改并提交，不推送到远程仓库。
-
-
+这个是我在本地的develop分支做的改动并提交并推送到远程仓库。
+在本地develop分支再次做修改并提交并推送到远程仓库。
 
 
 
