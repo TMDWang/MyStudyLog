@@ -744,6 +744,7 @@ git branch  # 查看本地分支列表。
 git branch -r  # 查看远程分支列表。
 ```
 
+
 **推送 & 拉取 & 删除远程分支**
 
 ```
@@ -752,8 +753,6 @@ git checkout develop origin/develop  # 如果远程有个分支develop，而本�
 git checkout -b develop origin/develop  # 将远程分支迁到本地并切换到该分支。
 git push origin :develop  # 删除远程分支。
 ```
-
-
 
 ### 2.2 分支管理流程Git Flow
 
@@ -775,6 +774,6 @@ Github地址：https://github.com/nvie/gitflow
 
 ## 参考文献
 
-[1] Stormzhang,《从 0 开始学习 GitHub 系列》.
+[1] Stormzhang,《从 0 开始学习 GitHub 系列》, ./book/.
 
-[2] Scott Chacon & Ben Straub, 《Pro Git》.
+[2] Scott Chacon & Ben Straub, 《Pro Git》, ./book/.
