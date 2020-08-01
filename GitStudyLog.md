@@ -767,7 +767,7 @@ git branch -D develop
 git push origin :develop
 ```
 
-删除远程分支
+删除远程分支。在此处添加一些内容，查看是否会有冲突。
 
 ```
 git checkout develop origin/develop
@@ -779,7 +779,7 @@ git checkout develop origin/develop
 git checkout -b develop origin/develop
 ```
 
-将远程分支迁到本地并切换到该分支。
+将远程分支origin/develop迁到本地develop并切换到该分支。
 
 ### 2.2 分支管理流程Git Flow
 
@@ -801,6 +801,6 @@ Github地址：https://github.com/nvie/gitflow
 
 ## 参考文献
 
-[1] Stormzhang,《从 0 开始学习 GitHub 系列》.
+[1] Stormzhang,《从 0 开始学习 GitHub 系列》, ./book/.
 
-[2] Scott Chacon & Ben Straub, 《Pro Git》.
+[2] Scott Chacon & Ben Straub, 《Pro Git》, ./book/.
