@@ -723,63 +723,37 @@ git log --oneline --decorate --graph --all
 
 该命令会输出你的提交历史、各个分支的指向以及项目的分支分叉情况。
 
+
+
 ### 2.1 常用命令
 
-```
-git branch develop
-```
-
-创建一个基于当前master分支且名字为develop的新分支，此时develop分支与master主分支的内容完全一样。
+**创建 & 切换 & 删除分支**
 
 ```
-git checkout develop
+git branch develop  # 创建一个基于当前master分支且名字为develop的新分支，此时develop分支与master主分支的内容完全一样。
+git checkout develop  # 切换到develop分支。
+git checkout -b develop  # 合并以上两步，新建develop分支并切到该分支下。
+git branch -d develop  # 删除本地develop分支。
+git branch -D develop  # 强制删除本地develop分支。
 ```
 
-切换到develop分支。
+**查看分支**
 
 ```
-git checkout -b develop
+git branch  # 查看本地分支列表。
+git branch -r  # 查看远程分支列表。
 ```
 
-合并以上两步，新建develop分支并切到该分支下。
+**推送 & 拉取 & 删除远程分支**
 
 ```
-git push origin develop
+git push origin develop  # 将本地develop分支推送到名字为origin的远程仓库。
+git checkout develop origin/develop  # 如果远程有个分支develop，而本地没有，执行上条命令可以将远程分支迁到本地。
+git checkout -b develop origin/develop  # 将远程分支迁到本地并切换到该分支。
+git push origin :develop  # 删除远程分支。
 ```
 
-将develop分支推送到名字为origin的远程仓库。
 
-```
-git branch
-git branch -r
-```
-
-查看本地分支列表，查看远程分支列表
-
-```
-git branch -d develop
-git branch -D develop
-```
-
-删除本地develop分支，强制删除本地develop分支
-
-```
-git push origin :develop
-```
-
-删除远程分支
-
-```
-git checkout develop origin/develop
-```
-
-如果远程有个分支develop，而本地没有，执行上条命令可以将远程分支迁到本地。
-
-```
-git checkout -b develop origin/develop
-```
-
-将远程分支迁到本地并切换到该分支。
 
 ### 2.2 分支管理流程Git Flow
 
