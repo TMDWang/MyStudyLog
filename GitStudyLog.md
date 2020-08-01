@@ -766,7 +766,9 @@ Github地址：https://github.com/nvie/gitflow
 
 
 
-这个是我在本地的develop分支做的改动。
+这个是我在本地的develop分支做的改动并提交并推送到远程仓库。
+
+在本地develop分支再次做修改并提交并推送到远程仓库。
 
 
 
