@@ -53,7 +53,19 @@ char *string = "Hello world!";
 
 
 
+##### 1.11 \_\_attribute\_\_()
 
+\_\_attribute\_\_可以设置函数属性（Function Attribute）、变量属性（Variable Attribute）和类型属性（Type Attribute）。
+
+\_\_attribute\_\_书写特征是：\_\_attribute\_\_前后都有两个下划线，并且后面会紧跟一对圆括号，括号里面是\_\_attribute\_\_参数。
+
+\_\_attribute\_\_语法格式为：\_\_attribute\_\_((attribute_list))。
+
+关键字\_\_attribute\_\_也可以对结构体（struct）或共用体（union）进行属性设置。大概有一下6个参数：
+
+aligned、packed、transparent_union、unused、deprecated、may_alias
+
+在使用\_\_attribute\_\_参数时，你也可以在参数的前后都加上“__”，例如使用“\_\_aligned\_\_”而不是“aligned”，这样你就可以在相应的头文件里使用它而不用关心头文件里是否有重名的宏定义。
 
 #### 2 指针
 
