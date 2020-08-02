@@ -11,3 +11,4 @@
 - book：存放学习以上内容的资料、文献。
 - illustration：存放GitStudyLog.md文件中的插图。
 - VS_illustration：存放visual_studio_C_user_guide.md文件中的插图。
+- C_illustration：存放C_illustration.md文件中的插图。
