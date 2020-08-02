@@ -4,6 +4,22 @@
 
 **在FreeRTOS中，每一个执行的线程被叫做任务**
 
+##### 0.1 一些术语的中英对照
+
+|    English     |   中文   |
+| :------------: | :------: |
+| portable layer | 可移植层 |
+|                |          |
+|                |          |
+|                |          |
+|                |          |
+|                |          |
+|                |          |
+|                |          |
+|                |          |
+
+
+
 ### 1 数据类型 & 编码风格
 
 **Tab键=4个空格。**
@@ -70,7 +86,7 @@ FreeRTOS中使用前缀（prefix）告诉你该变量的数据类型。具体如
 
 ### 2 堆内存管理
 
-
+FreeRTOS中使用pvPortMalloc()和pvPortFree()代替C标准库中的malloc()和free()函数，它们的函数原型（prototype）是一样的。FreeRTOS提供了五种pvPortMalloc()函数和pvPortFree()函数的实现，用户编写的FreeRTOS应用可以使用其中的一种，或者使用自己提供的。
 
 
 
