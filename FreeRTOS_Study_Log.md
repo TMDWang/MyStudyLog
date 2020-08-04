@@ -88,9 +88,16 @@ FreeRTOS中使用前缀（prefix）告诉你该变量的数据类型。具体如
 
 FreeRTOS中使用pvPortMalloc()和pvPortFree()代替C标准库中的malloc()和free()函数，它们的函数原型（prototype）是一样的。FreeRTOS提供了五种pvPortMalloc()函数和pvPortFree()函数的实现，用户编写的FreeRTOS应用可以使用其中的一种，或者使用自己提供的。
 
+Heap_1.c中只实现了一个非常基础的pvPortMalloc()版本，没有实现pvPortFree()。因此适用于从不删除任务或者内核对象的应用。
 
+![image-20200804232247161](FreeRTOS_illustration/image-20200804232247161.png)
 
+Heap_4.c相当于Heap_2.c的增强版，在设计中推荐使用前者，保留后者是为了向下兼容。相比于Heap_1.c，Heap_2.c中允许释放内存。Heap_2.c不能像Heap_4.c可以把相邻的小内存块合并成大内存块，因此会产生内存碎片，不过它适用于重复创建删除占用相同内存大小任务的应用中。
 
+![image-20200804232329557](FreeRTOS_illustration/image-20200804232329557.png)
 
+Heap_3.c使用标准库中的malloc() & free()函数，因此堆内存的大小由连接器配置决定，不受configTOTAL_HEAP_SIZE设置的影响。Heap_3.c通过暂时挂起FreeRTOS调度器保证malloc() & free()函数thread-safe。
 
+Heap_4.c同Heap_1.c和Heap_2.c一样将内存分为小块，且被静态分配。如前所述，Heap_4.c可以将临近的内存合并到一起，因此它适用于任务被重复创建和删除的应用，任务所占内存大小可不相同。
 
+![image-20200804233951224](FreeRTOS_illustration/image-20200804233951224.png)
