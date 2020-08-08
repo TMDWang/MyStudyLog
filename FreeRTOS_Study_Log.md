@@ -122,9 +122,13 @@ void ATaskFunction(void *pvParameters);
 
 ![image-20200807002419298](FreeRTOS_illustration/image-20200807002419298.png)
 
+#### 3.1 任务状态（Task States）
 
+一个应用程序可以由许多任务组成。单核处理器运行应用程序时在任一时刻只有一个任务可以执行。这意味着任务可以有运行（Running）和非运行（Not Running）两个状态。
 
+![image-20200807165136069](FreeRTOS_illustration/image-20200807165136069.png)
 
+任务从非运行态转化到运行态时称为"switched in"或者"swapped in"。相反的，任务宠运行态转化到非运行态称为"switched out"或"swapped out"。**FreeRTOS scheduler（调度器）是唯一可以转换任务状态的实体**。
 
 
 
