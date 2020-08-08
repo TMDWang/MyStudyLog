@@ -34,7 +34,7 @@ FreeRTOS源代码可以用许多不同的编译器进行编译，所有这些编
 
 FreeRTOS配置一个周期性的中断，称为tick interrupt。从FreeRTOS应用启动开始tick interrupt发生的次数称为tick count。tick count被用来度量时间。两个tick interrupt之间的用时称为tick period。TickType_t是用来保存tick count值的数据类型，即指定时间。TickType_t可以是uint16或者uint32，这取决于FreeRTOSConfig.h中变量configUSE_16_BIT_TICKS的值，设置为1则使用uint16，0为uint32，在32位处理器上没有理由使用uint16。
 
-BaseType_t通常用作函数返回值的类型，一般是很有限的值，常用于pdTRUE/pdFALSE的布尔运算。BaseType_t的类型一般取决于处理器的位数，8-bit、16-bit、32-bit。
+**BaseType_t**通常用作函数返回值的类型，一般是很有限的值，常用于pdTRUE/pdFALSE的布尔运算。BaseType_t的类型一般取决于处理器的位数，8-bit、16-bit、32-bit。
 
 #### 1.2 变量命名规则
 
@@ -47,21 +47,21 @@ FreeRTOS中使用前缀（prefix）告诉你该变量的数据类型。具体如
 |      "l"       | int32_t(long)  |      |
 |      "x"       |   BaseType_t   |      |
 
-"x"前缀也加在非标准的数据类型前面，例如structures、task handles、queue handles等。
+**"x"前缀也加在非标准的数据类型前面，例如structures、task handles、queue handles等。**
 
-另外，如果变量是unsigned也会加前缀"u"，如果变量是指针类型会加"p"。例如，一个uint8_t类型的变量会加前缀"uc"，指向字符类型的指针会加前缀"pc"。
+另外，**如果变量是unsigned也会加前缀"u"，如果变量是指针类型会加"p"**。例如，一个uint8_t类型的变量会加前缀"uc"，指向字符类型的指针会加前缀"pc"。
 
 #### 1.3 函数命名规则
 
 函数的前缀中有该函数返回值的类型和定义该函数的文件。如下表：
 
-|       函数名        | 含义                                                |
-| :-----------------: | :-------------------------------------------------- |
-|    xQueueReceive    | 返回值类型为**BaseType_t**，在**queue.c**中定义     |
-| vTaskPrioritySet()  | 返回值类型为**void**，在**task.c**中定义            |
-| pvTimerGetTimerID() | 返回值类型为**指向void的指针**，在**timer.c**中定义 |
+|         函数名          | 含义                                                |
+| :---------------------: | :-------------------------------------------------- |
+|    **x**QueueReceive    | 返回值类型为**BaseType_t**，在**queue.c**中定义     |
+| **v**TaskPrioritySet()  | 返回值类型为**void**，在**task.c**中定义            |
+| **pv**TimerGetTimerID() | 返回值类型为**指向void的指针**，在**timer.c**中定义 |
 
-另外，前缀"prv"表示该函数为定义该函数的文件私有的（private），即函数的作用域为该文件内。
+另外，**前缀"prv"表示该函数为定义该函数的文件私有的（private），即函数的作用域为该文件内。**
 
 #### 1.4 宏命名规则
 
@@ -130,15 +130,33 @@ void ATaskFunction(void *pvParameters);
 
 任务从非运行态转化到运行态时称为"switched in"或者"swapped in"。相反的，任务宠运行态转化到非运行态称为"switched out"或"swapped out"。**FreeRTOS scheduler（调度器）是唯一可以转换任务状态的实体**。
 
+#### 3.2 创建任务
 
+**xTaskCreate()函数**
 
+xTaskCreate()函数用于创建任务（此函数可能是最复杂的API Functions），在FreeRTOS V9.0.0中还包含xTaskCreateStatic()函数，该函数在编译时为任务的创建静态分配内存。xTaskCreate()函数原型如下图所示：
 
+![image-20200808035645183](FreeRTOS_illustration/image-20200808035645183.png)
 
+**参数**
 
+**pvTaskCode**：任务是简单的C函数，通常实现为一个死循环。pvTaskCode参数为指向该任务的指针（实际上，就是任务的函数名）。
 
+**pcName**：任务的一个描述。在FreeRTOS中不会用到它，他的存在纯粹是为了debugging目的。通过一个可读的名字识别任务相对于通过任务句柄识别的有点是显而易见的。configMAX_TASK_NAME_LEN定义了该名字可以占用的最大长度（包含结束符），如果超过最大值，会被切掉。
 
+**usStackDepth**：任务创建时，内核会为每一个任务都分配一个属于该任务唯一的栈，usStackDepth参数告诉内核该任务需要的栈大小，单位是字words。常量configMINIMAL_STACK_SIZE规定了空闲任务使用的栈大小，该常量也是所有任务栈大小的最小值。
 
+**pvParameters**：任务接受一个指向void的指针。pvParameters的值就是传入任务的值。
 
+**uxPriority**：任务执行的优先级，优先级可以设置为最低的0到最高优先级（configMAX_PRIORITIES - 1），常量configMAX_PRIORITIES由用户定义。如果给定的优先级数值大于（configMAX_PRIORITIES - 1），则会将其优先级设置为最大优先级。
+
+**pxCreatedTask**：pxCreatedTask参数用作当前创建任务的句柄。该句柄可以用来改变该任务的优先级，或删除该任务。如果你的应用程序中用不上该句柄，可将其设置为NULL。
+
+**返回值**
+
+返回值可能是**pdPASS**，表示任务创建成功，也可能是**pdFAIL**，表示任务创建失败，原因是内存不足。
+
+#### 3.3 任务优先级 Task Priorities
 
 
 
