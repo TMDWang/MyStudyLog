@@ -816,16 +816,44 @@ git remote show <remote>
 
 它们以\<remote\>/\<branch\>的形式命名。
 
-### 2.7 变基
+### 2.7 变基 rebase
 
+在Git中整合来自不同分支的修改主要有两种方法：merge和rebase。
 
+在之前的分支合并例子中，有一个如下图所示的情况，开发任务分叉到两个不同的分支，又各自提交了更新。
 
+![image-20200810205551461](illustration/image-20200810205551461.png)
 
+根据之前的介绍，整合分支最容易的方法是merge命令。它会把两个分支的最新快照（C3和C4）以及二者最近的共同祖先（C2）进行三方合并，合并的结果是生成一个新的快照（并提交）。如下图所示：
 
+![image-20200810205905807](illustration/image-20200810205905807.png)
 
+除了上面的merge方法，另一种方法是提取C4中引入的补丁和修改，然后在C3的基础上应用一次。在Git中，这种操作就叫做**变基（rebase）**。你可以使用rebase命令将提交到某一分支上的所有修改都移至另一分支上，就好像“重新播放”一样。在上面的提交记录中可以先检出experiment分支，然后将它变基到master分支上。
+
+```
+git checkout experiment
+git rebase master
+```
+
+它的原理是首先找到这两个分支（当前分支experiment、变基操作的目标基底分支master）的最近共同祖先C2，然后对比当前分支相对于该祖先的历次提交，提取相应的修改并存为临时文件，然后将当前分支指向目标基底C3，最后以此将之前另存为临时文件的修改依序应用。如下图所示：
+
+![image-20200810211119651](illustration/image-20200810211119651.png)
+
+现在回到master分支，进行一次快进合并。
+
+```
+git checkout master
+git merge experiment
+```
+
+![image-20200810211305390](illustration/image-20200810211305390.png)
+
+此时，C4‘指向的快照就和利用merge命令例子中C5指向的快照一摸一样了。两中整合方法的最终结果没有任何区别，但是变基使得提交历史更加整洁。
+
+**一般我们利用rebase整合分支的目的是为了确保在向远程分支推送时能保持提交历史的整洁。**
 
 ## 参考文献
 
-[1] Stormzhang,《从 0 开始学习 GitHub 系列》, ./book/.
+[1] Stormzhang,《从 0 开始学习 GitHub 系列》.
 
-[2] Scott Chacon & Ben Straub, 《Pro Git》, ./book/.
+[2] Scott Chacon & Ben Straub, 《Pro Git》.
