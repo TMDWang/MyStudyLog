@@ -22,7 +22,7 @@
 
 
 
-##### 1.6 memset() & memcopy()
+##### 1.6 memset() & memcopy() & memcmp()
 
 
 
@@ -68,6 +68,14 @@ aligned、packed、transparent_union、unused、deprecated、may_alias
 在使用\_\_attribute\_\_参数时，你也可以在参数的前后都加上“__”，例如使用“\_\_aligned\_\_”而不是“aligned”，这样你就可以在相应的头文件里使用它而不用关心头文件里是否有重名的宏定义。
 
 **函数属性（Function Attribute）**
+
+
+
+##### 1.12 作用域
+
+
+
+
 
 
 
