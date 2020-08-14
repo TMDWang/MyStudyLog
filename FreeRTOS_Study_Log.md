@@ -507,7 +507,7 @@ xQueue：别写入数据的队列的句柄。该句柄是调用xQueueCreate()函
 
 pvItemToQueue：指向要写入队列的数据的指针。队列能够存储的数据项的大小在其创建时已经给定，所以会有很多字节的数据从pvItemToQueue指向的数据拷贝到队列的存储区域。
 
-xTicksToWait：如果队列已经存满，需要等待队列可以被访问造成任务被阻塞，该值表示任务被阻塞时要持续的最长时间。如果该值设置为0，当队列满的时候，写入函数会立即返回。如果设置该值为portMAX_DELAY，则在队列满的时候，任务（函数）可能会一直等待（不退出），这种方式需要在FreeRTOSconfig.h头文件中将INCLUDE_vTaskSuspend设置为1。
+**xTicksToWait**：如果队列已经存满，需要等待队列可以被访问造成任务被阻塞，该值表示任务被阻塞时要持续的最长时间。如果该值设置为0，当队列满的时候，写入函数会立即返回。**如果设置该值为portMAX_DELAY，则在队列满的时候，任务（函数）可能会一直等待（不退出）**，这种方式需要在FreeRTOSconfig.h头文件中将INCLUDE_vTaskSuspend设置为1。
 
 **返回值**
 
@@ -518,4 +518,58 @@ pdPASS：只有当数据成功发送到队列时才会返回pdPASS。
 errQUEUE_FULL：当队列已满，数据不能被写入队列时返回errQUEUE_FULL。
 
 ##### 4.2.3 xQueueReceive()函数
+
+xQueueReceive()函数用来从队列中接收（读取）一个数据项。读取之后该数据项将在队列中删除。其函数原型如下图所示。
+
+注意：绝不能从中断服务程序中调用xQueueReceive()函数。应选用安全的适用于中断的xQueueReceiveFromISR()函数。该函数将在第六章讲述。
+
+![image-20200814232352751](FreeRTOS_illustration/image-20200814232352751.png)
+
+**参数**
+
+xQueue：将要被读取数据的队列的句柄。该句柄是调用xQueueCreate()创建队列时返回值。
+
+pvBuffer：一个指向内存的指针，接收到的数据将被复制到其中。队列中每个数据的项大小在其被创建时设定。该指针指向的内存大小必须足够大以容纳读取的数据项。
+
+xTicksToWait：当队列中没有数据可读时，该值指定了任务等待队列从空状态到可读取状态的最大事件，在这段事件内任务将处于阻塞态。
+
+如果将该值设置为0，那么当队列为空时，xQueueReceive()函数将立即返回。
+
+如果该值设置为portMAX_DELAY，那么当队列一直为空时，将会使任务一直等待下去，使用该功能需要在FreeRTOS.h头文件中将INCLUDE_vTaskSuspend设置为1。
+
+**返回值**
+
+pdPASS：如果数据在指定的时间内（xTicksToWait）成功的从队列中读出，将会返回pdPASS。
+
+errQUEUE_EMPTY：如果在指定的时间内（xTicksToWait）不能从队列中读出数据（队列一直为空）。则返回errQUEUE_EMPTY。
+
+##### 4.2.4 uxQueueMessagesWaiting()
+
+uxQueueMessagesWaiting()函数用来询问（查询）一个队列当前存储的数据项数目。其函数原型如下图所示：
+
+**注意**：在中断服务程序中调用uxQueueMessagesWaitingFromISR()函数，绝不能调用uxQueueMessagesWaiting()函数。
+
+![image-20200814235432075](FreeRTOS_illustration/image-20200814235432075.png)
+
+**参数**
+
+xQueue：被查询队列的句柄。该句柄为创建该队列时，xQueueCreate()函数的返回值。
+
+**返回指**
+
+** ：被查询的队列当前存储的数据项数量，如果队列为空，则返回0。
+
+#### 4.3 从多个源头接收数据
+
+
+
+
+
+
+
+
+
+
+
+
 
