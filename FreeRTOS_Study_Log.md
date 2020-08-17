@@ -665,3 +665,24 @@ pdFAIL：如果队列或信号量不能被添加到队列集合中，返回pdFAI
 
 xQueueSelectFromSet()函数用于从队列集合中读出一个队列句柄。
 
+当集合中的队列或者信号量接收数据时，接收数据的队列或者信号量的句柄将被发送到队列集合中，在任务调用xQueueSelectFromSet()函数时返回发送到集合中的句柄。如果调用xQueueSelectFromSet()函数返回了一个句柄，那么通过该句柄引用的队列或者信号量一定包含数据，任务可以直接利用该句柄读取队列或者信号量中的数据。其函数原型如下图所示：
+
+注意：不要从集合中的队列或信号量中读取数据，除非队列或信号量的句柄已经从xQueueSelectFromSet()调用中返回。只有当句柄从xQueueSelectFromSet()函数中返回时才可以读取队列或者信号量。
+
+![image-20200817232136089](FreeRTOS_illustration/image-20200817232136089.png)
+
+**参数**
+
+xQueueSet：将要从中读取队列句柄或者信号量句柄的队列集合句柄。队列集合句柄会在调用xQueueCreateSet()函数创建队列集合时返回。
+
+xTicksToWait：当队列集合为空时，任务因等待接收队列或信号量句柄而进入阻塞态的最大持续时间。如果xTicksToWait的值为0，那么当队列集合中的队列和信号量都为空时，xQueueSekectFromSet()函数会立即返回。
+
+设置xTicksToWait的值为portMAX_DELAY会使任务一直等待，直到集合中有数据可读，要使用portMAX_DELAY需在FreeRTOSConfing.h头文件中将INCLUDE_vTaskSuspend的值设置为1。
+
+**返回指**
+
+Non-NULL：返回一个非空值，则该返回值将是包含数据的队列或者信号量的句柄。返回的句柄是一个QueueSetMemberHandle_t类型的数据，它可以被转换为QueueHandle_t类型或者SemaphoreHandle_t类型。
+
+NULL：如果返回NULL，那么表示不能从队列集合中读取句柄。
+
+#### 4.6 利用队列创建邮箱
