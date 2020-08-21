@@ -895,3 +895,53 @@ xTimerDelete()函数将删除一个定时器，定时器可在在任何时刻被
 
 **参数**
 
+pcTimerName：具有描述性的定时器名字。FreeRTOS不会使用该名字。它的存在纯粹是为了debug。通过这个高可读性的名字分辨定时器要比定时器句柄容易的多。
+
+xTimerPeriodInTicks：用ticks数量指定的定时器周期。pdMS_TO_TICKS()宏可以用来将以毫秒为单位的数值转换为ticks数量。
+
+uxAutoReload：设置uxAutoReload参数为pdTRUE则创建的定时器为自动重载定时器。设置uxAutoReload参数为pdFALSE则创建的定时器为一次性定时器。
+
+pvTimerID：每一个定时器都有一个ID值。这个ID是一个viod指针，可以供程序开发人员以任意目的使用。当多个定时器的回调函数是同一个时，这个ID非常有用，因为这个ID可用于提供特定于某个定时器的存储。定时器ID的使用示例将在本章节展示，当然还是去看书，我是不会写在这里的。
+
+当创建定时器时会给pvTimerID一个初始值。
+
+pxCallbackFunction：软件定时器的回调函数是一个用C语言编写的简单函数，它的函数原型在Listing72那张图片上。pxCallbackFunction参数是一个函数指针（实际上，就是函数名），指向的函数用作创建的这个软件定时器的回调函数。
+
+**返回值**
+
+NULL：如果返回NULL，则由于没有足够的堆内存供FreeRTOS分配必要的数据结构给定时器，而使得软件定时器创建失败。
+
+non-NULL：返回一个非NULL值则表示软件定时器创建成功。返回的值是创建的定时器的句柄。
+
+##### 5.4.2 xTimerStart()函数（发送一条命令到队列）
+
+xTimerStart()函数用于启动一个处于休眠状态的软件定时器，或者用于重置（重新启动）一个在运行状态的软件定时器。xTimerStop()函数用于停止一个处于运行状态的软件定时器。停止软件定时器就是将其状态转变为休眠状态。
+
+xTimerStart()函数可以在调度器启动之前调用，但是即使那样，软件定时器其实没有真正的启动，直到调度器启动它才启动。其函数原型如下图所示。
+
+注意：绝不能在中断服务程序中调用xTimerStart()函数。更安全的做法是调用xTimerStartFromISR()。
+
+![image-20200822002451044](FreeRTOS_illustration/image-20200822002451044.png)
+
+**参数**
+
+**xTimer**：需要开启或者重置的软件定时器句柄。该句柄是调用xTimerCreate()函数创建软降定时器时返回的句柄。
+
+**xTicksToWait**：xTimerStart()函数使用定时器命令队列发送“开启定时器”命令给守护进程任务。xTicksToWait参数指定了调用xTimerStart()函数的任务由于软件定时器命令队列已满而进入阻塞状态等待队列有空间可访问时的最长时间。
+
+如果xTicksToWait参数设置为0，则当定时器命令队列满时，xTimerStart()函数将会立即返回。
+
+阻塞状态的时间单位时ticks，所以你可以使用pdMS_TO_TICKS()。
+
+如果在FreeRTOSConfig.h头文件中将INCLUDE_vTaskSuspend设置为1，那么在调用xTimerStart()函数时，将xTicksToWait参数设置为portMAX_DELAY时，调用xTimerStart()函数的任务在由于定时器命令队列已满而进入阻塞态等待队列有可使用的空间时，如果一直没有空用的空间，该任务将一直处于阻塞态。
+
+如果xTimerStart()函数被调用前调度器并没用启动，那么xTicksToWait参数将被忽略，此时xTickStart()函数的行为等同于将xTicksToWait参数设置为0。
+
+**返回值**
+
+**pdPASS**：如果“start a timer”命令成功发送到定时器命令队列。
+
+如果守护进程任务的优先级大于调用xTimerStart()函数的任务，那么调度器将保证在xTimerStart()函数返回之前处理“start a timer”命令。
+
+**pdFAISE**：如果“start a timer”命令不能被写入定时器命令队列（队列已满），则会返回pdFALSE。
+
