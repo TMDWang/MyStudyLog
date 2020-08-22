@@ -1015,3 +1015,41 @@ pdPASS：只有命令成功发送到定时器命令队列时才返回pdPASS。
 
 pdFALSE：如果“改变周期”命令由于定时器命令队列已满而不能写到队列时将会返回pdFALSE。
 
+#### 5.7 重置软件定时器
+
+重置软件定时器意味着重新开启这个定时器；定时器的到期时间将从定时器重启时重新计算。如下图所示，定时器开启时其周期为6tick，然后在其最终的到期时间到来（回调函数被执行）之前两被次重启。
+
+![image-20200822212930026](FreeRTOS_illustration/image-20200822212930026.png)
+
+##### 5.7.1 xTimerReset()函数
+
+xTimerReset()用于重新开始定时器。xTimerReset()同样也可以用于开启一个处于休眠状态的定时器。其函数原型如下图所示。
+
+注意：绝不能在中断服务程序中使用xTimerReset()函数，要使用中断-安全版本，xTimerResetFromISR()函数。
+
+![image-20200822214212806](FreeRTOS_illustration/image-20200822214212806.png)
+
+**参数**
+
+xTimer：要重置会开启的定时器句柄。
+
+xTicksToWait：调用xTimerReset()函数的任务，使用定时器命令队列发送“reset”命令到守护进程任务时的最大阻塞时间。同样该值可以被设置为0或portMAX_DELAY。
+
+**返回值**
+
+pdPASS：只有在重置命令成功发送到定时器命令队列时才会返回pdPASS。
+
+pdFALSE：重置命令未能成功发送到定时器命令队列时返货pdFALSE。
+
+### 6 中断管理（Interrupt Management）
+
+
+
+
+
+
+
+
+
+
+
