@@ -945,3 +945,73 @@ xTimerStart()函数可以在调度器启动之前调用，但是即使那样，�
 
 **pdFAISE**：如果“start a timer”命令不能被写入定时器命令队列（队列已满），则会返回pdFALSE。
 
+#### 5.5 定时器ID（Timer ID）
+
+每一个定时器都有一个ID，它是应用开发者可以以任何目的使用的标签值。ID被存在一个void指针（void *）中，因此可以直接存储一个int类型的值作为指针，指向你想要的数据对象，或用作函数指针。
+
+当软件定时器被创建时会给定一个初始ID-这个ID可以在之后使用vTimerSetTimerID()函数修改，这个ID也可以使用pvTimerGetTimerID()函数获取。
+
+与其他API函数不同，vTimerSetTimerID()函数和pvTimerGetTimerID()函数可以直接访问软件定时器，这两个函数不需要发送命令到定时器命令队列。
+
+##### 5.5.1 vTimerSetTimerID()函数 & pvTimerGetTimerID()函数
+
+vTimerSetTimerID()函数原型如下图所示：
+
+![image-20200822125508741](FreeRTOS_illustration/image-20200822125508741.png)
+
+**参数**
+
+xTimer：要被更新ID值的软件定时器句柄。该句柄是调用xTimerCreate()函数创建软件定时器时的返回值。
+
+pvNewID：要设置的新的软件定时器ID。
+
+pvTimerGetTimerID()函数原型如下图所示：
+
+![image-20200822135249251](FreeRTOS_illustration/image-20200822135249251.png)
+
+**参数**
+
+xTimer：被询问ID的软件定时器句柄。
+
+**返回值**
+
+ID：被询问ID的软件定时器的ID。
+
+同一个回调函数可以分配给多个软件定时器。当这种情况发生时，回调函数的参数就可以用于判决哪一个定时器时间到期了。
+
+#### 5.6 改变定时器的周期
+
+每一个官方的FreeRTOS端口都提供一个或多个样例工程。大多数的工程示例都有自检功能，他们使用LED给使用项目的人一个项目状态的视觉反馈。当自检没有问题时，LED等缓慢闪烁（时间间隔长），如果自检出现失败时，LED快速闪烁。
+
+一些示例项目将自检实现为一个任务，在任务中通过vTaskDelay()函数控制LED灯的闪烁频率。还有些示例工程将自检实现为软件定时器的回调函数，利用定时器的周期控制LED灯的闪烁速率。
+
+##### 5.6.1 xTimerChangePeriod()函数
+
+xTimerChangePeriod()函数用于改变一个软件定时器的周期。
+
+如果使用xTimerChangePeriod()函数改变一个正在运行的定时器的周期，那么该定时器将会使用新的周期重新计算他的到期时间。重新计算到期时间的起始时间与调用xTimerChangePeriod()调用的时间相关，而不是在定时器原始的启动时刻开始重新计算。
+
+如果使用xTimerChangePeriod()改变一个处于休眠状态的定时器，那么该定时器将计算一个到期时间，并且转入运行态（**调用函数xTimerChange()函数会启动处于休眠状态的定时器**）。
+
+注意：在终端服务程序中，要使用中断-安全版本的xTimerChangePeriodFromISR()函数，决不能使用xTimerChangePeriod()函数。
+
+xTimerChangePeriod()函数的原型如下：
+
+![image-20200822184034087](FreeRTOS_illustration/image-20200822184034087.png)
+
+**参数**
+
+**xTimer**：将要被更新周期值的软件定时器句柄。调用xTimerCreate()函数创建定时器时的返回值。
+
+**xTimerPeriodInTicks**：软件定时器的新周期值，单位是ticks。pdMS_TO_TICKS()宏是个好东西。
+
+**xTicksToWait**：xTimerChangePeriod()函数使用定时器命令队列发送“改变周期”命令到守护进程任务。xTicksToWait参数指定了调用xTimerChangePeriod()的任务当定时器命令队列已满时，进入阻塞状态以等待队列中有可访问的空间的最大阻塞时间。同其他函数一样，该参数也可以设置为0和portMAX_DELAY。
+
+如果xTimerChangePeriod()函数在调度器开启之前调用，那么xTIcksToWait参数将被忽略，此时xTimerChangePeriod()函数的行为相当于将xTicksToWait参数设置为0。
+
+**返回值**
+
+pdPASS：只有命令成功发送到定时器命令队列时才返回pdPASS。
+
+pdFALSE：如果“改变周期”命令由于定时器命令队列已满而不能写到队列时将会返回pdFALSE。
+
