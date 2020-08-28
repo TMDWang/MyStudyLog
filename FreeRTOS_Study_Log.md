@@ -1095,6 +1095,34 @@ FreeRTOS没有给应用程序的开发者强加任何的事件处理策略，反
 
 如果通过FreeRTOS API函数使得任务退出阻塞态，而这个任务的优先级又比当前正在运行的任务优先级高，那么按照FreeRTOS的调度规则，将会发生一个向更高优先级任务的切换。这时向更高优先级任务的切换的真实发生，取决于API函数被调用的上下文。
 
+- 如果这个函数是从任务中调用的
+
+如果在FreeRTOSConfig,h头文件中将configUSE_PREEMPTION设置为1，那么在调用函数后-在函数退出之前，将处于运行态的任务会自动切换到高优先级的任务
+
+- 如果这个函数是从中断中调用
+
+将处于运行态的任务将不会自动切换到处于就绪态的最高优先级任务。但是，将会通过设置一个变量告知应用开发者此处应该执行一个上下文切换。中断安全应用程序接口函数（后面带有“FromISR”）有一个被叫做pxHigherPriorityTaskWoken指针参数就是为了这个目的而设计的。
+
+如果需要发生上下文切换时，interrupt safe应用程序接口函数将设置*pxHigherPriorityTaskWoken变量为pdTRUE。为了检测到上下文切换的发生，在使用参数pxHigherPriorityTaskWoken时，必须在第一次使用它时，将它指向的变量值初始化为pdFALSE。
+
+FreeRTOS API函数只可以设置*pxHighPriorityTaskWoken参数设置为pdTRUE。如果中断服务程序中调用了多个FreeRTOS API函数，那么相同的变量可以作为pxHigherPriorityTaskWoken参数在每个API函数调用中传递，pxHigherPriorityTaskWoken参数只需要在首次使用之前初始化为psFALSE就行。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
