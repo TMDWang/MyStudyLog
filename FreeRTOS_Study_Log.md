@@ -1107,15 +1107,33 @@ FreeRTOS没有给应用程序的开发者强加任何的事件处理策略，反
 
 FreeRTOS API函数只可以设置*pxHighPriorityTaskWoken参数设置为pdTRUE。如果中断服务程序中调用了多个FreeRTOS API函数，那么相同的变量可以作为pxHigherPriorityTaskWoken参数在每个API函数调用中传递，pxHigherPriorityTaskWoken参数只需要在首次使用之前初始化为psFALSE就行。
 
+在interrupt safe版本的API函数中不会发生自动上下文切换的原因有以下几个：
 
+1. 避免不必要的上下文切换
 
+在必须需要任务运行之前，中断可能执行多次。例如，任务处理从UART中断驱动接收的字符串；如果每当UART中断服务程序接收到一个字符都切换到任务使其对接收到的字符进行处理是很不必要且浪费的，因为任务只需要在字符串接收完毕之后进行处理即可。
 
+2. 对执行序列的控制
 
+中断何时发生不可控，有经验的FreeRTOS开发者可能想要在他的应用程序中的某一个特定的位置暂时避免一个不可预测的上下文切换切到另一个任务。（这个也可以使用FreeRTOS调度器locking机制实现）
 
+3. 可移植性
 
+这是在所有的FreeRTOS端口中都可以使用的最简单的方法。
 
+4. 效率
 
+在中断服务程序中允许调用多个FreeRTOS API函数并且允许产生多个上下文请求。
 
+5. 在RTOS滴答中断中执行
+
+在后面将会见到，在RTOS滴答中断中添加应用程序代码是可能的。在滴答中断中尝试上下文切换的结果取决于使用的FreeRTOS端口。最好的情况就是不必要的调用一次调度器。
+
+pxHigherPriorityTaskWoken参数的使用是可选的，不使用时需将pxHigherPriorityTaskWoken指向NULL。
+
+**portYIELD_FROM_ISR()宏 & portEND_SWITCHING_ISR()宏**
+
+这两个宏用于在ISR中请求上下文切换。略：😄。
 
 
 
