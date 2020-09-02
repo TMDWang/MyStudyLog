@@ -1181,5 +1181,55 @@ xHigherPriorityTaskWoken参数被中断安全版的API函数操作之后，可�
 
 递延处理任务使用‘take’调用信号量的方式使自己进入阻塞状态，以等待事件（中断）发生。当事件发生时，中断服务程序在相同的信号量上使用‘give’操作，以使任务解阻塞进而使得处理中断的程序得以执行。
 
-P219
+“Taking a semaphore”和“giving a semaphore”两个概念在不同的使用场景中有不同的含义。在当前中断同步场景中，可以将二元信号量看作长度为1的队列。这个队列在任何时候最多只包含一个数据项，因此这个队列要么是空，要么是满。
+
+在其他的信号量使用场景中会与现在所使用二进制信号量不同，不同之处在于，任务使用信号量之后经常是必须送回信号量。
+
+![image-20200903002310783](FreeRTOS_illustration/image-20200903002310783.png)
+
+##### 6.3.1 xSemaphoreCreateBinary() API
+
+在FreeRTOS V9.0.0之后的版本中包含了xSemaphoreCreateBinaryStatic()函数，这个函数可以在编译的时候静态地为要创建的二进制信号量请求（静态）内存。FreeRTOS各种类型的信号量的句柄都存储在一个SemaphoreHandle_t类型的变量中。
+
+同样，在使用他之前，必须创建它。xSemaphoreCreateBinary() API函数用于创建binary semphore。其函数原型如下图所示
+
+![image-20200903003528403](FreeRTOS_illustration/image-20200903003528403.png)
+
+**参数**
+
+void
+
+**返回指**
+
+NULL：如果返回NULL，创建信号量失败，因为没有足够的堆内存可以分配给信号量，不能满足其存储数据的内存需求。
+
+non-NULL：如果创建成功，则会返回一个非NULL的值，这个非空的值应存储为所创建的信号量的句柄。
+
+##### 6.3.2 xSemaphoreTake() API函数
+
+‘’Taking‘一个信号量意味着’‘obtain’‘或者“receive”这个信号量。信号量只有在可获取时才能被taken。
+
+除了递归互斥体外的所有类型的信号量，都可以使用xSemaphoreTake()函数“Taken“信号量。
+
+**xSemaphoreTake()函数据不能在中断服务程序中调用。**其函数原型如下图所示：
+
+![image-20200903005709731](FreeRTOS_illustration/image-20200903005709731.png)
+
+**参数**
+
+xSemaphore：要被”taken“的信号量。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
