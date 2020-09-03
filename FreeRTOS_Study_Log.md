@@ -1217,7 +1217,49 @@ non-NULL：如果创建成功，则会返回一个非NULL的值，这个非空�
 
 **参数**
 
-xSemaphore：要被”taken“的信号量。
+xSemaphore：要被”taken“的信号量。信号量可以被一个SemaphoreHandle_t类型的变量引用，不过在使用这个变量之前，必须明确地声明它。
+
+xTicksToWait：如果要Taken的信号量不能获取，那么xTickToWait参数就指定了因此而进入阻塞状态的最大时间。
+
+设置该参数为portMAX_DELAY，那么在任务无法获取信号量的时候，会使任务一直处于阻塞状态知道能够获取所需的信号量。不过要使用portMAX_DELAY，需要在FreeRTOSConfig.h头文件中将INCLUDE_vTaskSuspend设置为1。
+
+**返回指**
+
+pdPASS：pdPASS中有在调用xSemaphoreTake()函数成功获取到信号量时返回。
+
+pdFALSE：信号量获取不到。
+
+##### 6.3.3 xSemaphoreGiveFromISR() API函数
+
+二进制信号量和计数信号量可以通过xSemaphoreGiveFromISR()函数'given'释放。
+
+xSemaphoreGiveFromISR()函数时xSemaphoreGive()函数的中断安全版本，因此这个函数需要的pxHigherPriorityTaskWoken参数在这节最开始就已经介绍。其函数原型如下所示：
+
+![image-20200904000352659](FreeRTOS_illustration/image-20200904000352659.png)
+
+**参数**
+
+xSemaphore：要被释放的信号量句柄。这个句柄类型为SemaphoreHandle_t，在使用这个句柄引用信号量时必须先明确声明它。
+
+pxHigherPriorityTaskWoken：可能会有多个任务等待获取同一个信号量而进入阻塞状态。调用xSemaphoreGiveFromISR()函数可以释放信号量，使得信号量可以被获取，也使得等待这个信号量能够被获取的任务退出阻塞态。如果调用xSemaphoreGiveFromISR()函数使得任务退出阻塞态，并且这个任务的优先级比当前运行的（被中断的）任务的优先级高，那么，在xSemaphoreGiveFromISR()函数内部将会设置pxHigherPriorityTaskWoken指针为pdTRUE。
+
+如果在xSemaphoreGiveFromISR()函数中设置pxHigherPriorityTaskWoken参数为pdTRUE，那么在中断退出之前应该执行上下文切换，确保中断退出后，运行的任务是就绪态中优先级最高的那一个。
+
+**返回值**
+
+pdPASS：只有在调用xSemaphoreGiveFromISR()函数成功时才会返回psPASS。
+
+pdFAIL：如果一个信号量已经是可获取的，不可以在被释放，此时xSemaphoreGiveFromISR()函数将返回pdFAIL。
+
+P227
+
+
+
+
+
+
+
+
 
 
 
