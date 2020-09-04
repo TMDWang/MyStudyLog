@@ -1251,7 +1251,7 @@ pdPASS：只有在调用xSemaphoreGiveFromISR()函数成功时才会返回psPASS
 
 pdFAIL：如果一个信号量已经是可获取的，不可以在被释放，此时xSemaphoreGiveFromISR()函数将返回pdFAIL。
 
-P227
+
 
 
 
