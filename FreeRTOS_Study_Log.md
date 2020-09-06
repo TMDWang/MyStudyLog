@@ -8,17 +8,17 @@
 
 ##### 0.1 一些术语的中英对照
 
-|      English      |   中文   |
-| :---------------: | :------: |
-|  portable layer   | 可移植层 |
-| abstraction layer |  抽象层  |
-|                   |          |
-|                   |          |
-|                   |          |
-|                   |          |
-|                   |          |
-|                   |          |
-|                   |          |
+|      English      |     中文     |
+| :---------------: | :----------: |
+|  portable layer   |   可移植层   |
+| abstraction layer |    抽象层    |
+|    Deamon Task    | 守护进程任务 |
+|                   |              |
+|                   |              |
+|                   |              |
+|                   |              |
+|                   |              |
+|                   |              |
 
 
 
@@ -1187,7 +1187,7 @@ xHigherPriorityTaskWoken参数被中断安全版的API函数操作之后，可�
 
 ![image-20200903002310783](FreeRTOS_illustration/image-20200903002310783.png)
 
-##### 6.3.1 xSemaphoreCreateBinary() API
+##### 6.3.1 xSemaphoreCreateBinary() API函数
 
 在FreeRTOS V9.0.0之后的版本中包含了xSemaphoreCreateBinaryStatic()函数，这个函数可以在编译的时候静态地为要创建的二进制信号量请求（静态）内存。FreeRTOS各种类型的信号量的句柄都存储在一个SemaphoreHandle_t类型的变量中。
 
@@ -1251,7 +1251,7 @@ pdPASS：只有在调用xSemaphoreGiveFromISR()函数成功时才会返回psPASS
 
 pdFAIL：如果一个信号量已经是可获取的，不可以在被释放，此时xSemaphoreGiveFromISR()函数将返回pdFAIL。
 
-##### 6.3.4 计数信号量（Counting Semaphores）
+#### 6.4 计数信号量（Counting Semaphores）
 
 如同将二进制信号量看作长度为1的队列，技术信号量可以被看作是长度（远）超过1的队列。任务不关心你存入这个”队列“中的具体数据是什么，它只关心你存入到队列中的数据项的数量。**如果你要使用技术信号量，你需要在FreeRTOSConfig.h头文件中将configUSE_COUNTING_SEMAPHORES设置为1。**
 
@@ -1273,7 +1273,7 @@ pdFAIL：如果一个信号量已经是可获取的，不可以在被释放，�
 
 如果将计数信号量用于管理资源，那么这个计数信号量在被创建的时候它的计数信号量的初始值将被设置为可以被使用的资源的数量。
 
-##### 6.3.5 xSemaphoreCreateCounting() API函数
+##### 6.4.1 xSemaphoreCreateCounting() API函数
 
 从FreeRTOS V9.0.0版本开始包含了xSemaphoreCreateCountingStatic()函数，该函数允许在编译时静态地分配创建计数信号量所需要的内存。**所有类型的FreeRTOS信号量的句柄都可以用一个SemaphoreHandle_t类型的变量存储。**
 
@@ -1293,7 +1293,9 @@ NULL：信号量需要一些内存去存储它的数据结构，当没有足够�
 
 non-NULL：返回一个非NULL值表示创建信号量成功，这个返回的非NULL的值应该作为这几个信号量的句柄被存储在一个SemaphoreHandle_t类型的变量中。
 
+#### 6.4 递延Work到RTOS守护进程任务
 
+P240
 
 
 
