@@ -1295,9 +1295,31 @@ non-NULL：返回一个非NULL值表示创建信号量成功，这个返回的�
 
 #### 6.4 递延Work到RTOS守护进程任务
 
-P240
+在前面展示的例子（在手册）中，使用递延中断技术时要求应用开发者为每一个中断创建一个同步任务。要达到递延中断的目的使用xTimerPendFunctionCallFromISR() API函数也是可以的，该函数将中断处理递延到RTOS的守护进程任务-这就省去了为每一个中断创建一个任务的需要。递延中断处理到守护进程任务的操作被称作“centralized deferred interrupt processing”。
 
+**deferred interrupt processing的优点有：**
 
+1. 低资源占用
+
+   它不需要为每一个中断创建单独的处理中断的任务。
+
+2. 简化用户模型
+
+   递延的中断处理函数是标准的C语言函数。
+
+**deferred interrupt processing的缺点有：**
+
+1. 低灵活度
+
+   不可能为每一个递延中断处理函数任务分配各自的优先级。每个递延中断处理函数的优先级同守护进程任务的优先级一样。在第5中的介绍中，守护进程任务的优先级由FreeRTOSConfig.h头文件中的configTIMER_TASK_PRIORITY常量参数设定，在编译时分配完成。
+
+2. 低可控性
+
+   xTimerPendFunctionCallFromISR()函数发送一条命令到定时器命令队列的尾部。已经在定时器队列的命令将会在守护进程任务在xTimerPendFunctionCallFromISR()函数将”执行函数“命令发送到队列之前处理完成。
+
+由于不同的中断对实时性的要求不相同，因此在同一个应用程序中是哦那个两种递延中断的方法也是很常见的。
+
+##### 6.4.1 xTimerPendFunctionCallFromISR() API函数
 
 
 
