@@ -1321,5 +1321,53 @@ non-NULL：返回一个非NULL值表示创建信号量成功，这个返回的�
 
 ##### 6.4.1 xTimerPendFunctionCallFromISR() API函数
 
+xTimerPendFunctionCallFromISR()函数是xTimerPendFunctionCall()函数在中断中使用的安全版本。两个函数都允许应用开发者编写的函数在RTOS的守护进程任务的上下文中执行。需要执行的函数和函数输入参数的值都通过定时器命令队列发送到守护进程任务。函数何时能够真正的运行还是要取决与守护进程任务和程序中其他任务的优先级的对比。其函数原型如下图所示：
+
+![image-20200908193119451](FreeRTOS_illustration/image-20200908193119451.png)
+
+**参数**
+
+xFunctionToPend：要在守护进程任务中执行的函数指针（函数名就是函数指针）。这个函数指针指向的函数的原型必须符合上图Listing 101的格式。
+
+pvParameter1：这个参数值将作为要在守护进程任务中执行的函数的pvPatameter参数的实参。这个参数是void *类型的指针，允许任何数据类型使用，如果你不喜欢这个void *类型，你可以使用结构体指针代替它。
+
+ulPatameter2：这个参数值将会被当作要在守护进程任务中执行的函数的ulPatameter2参数的实参。
+
+pxHigherPriorityTaskWoken：xTimerPendFunctionCallFromISR()函数向定时器命令队列写数据。如果RTOS守护进程因等待定时器命令队列有可以获得的数据（实际上没有可获得的数据）而进入阻塞状态，那么向定时器命令对列写入数据将是的守护进程任务退出阻塞态。如果守护进程任务的优先级比当前处于运行态的（被中断了的）任务优先级高，那么在xTimerPendFunctionCallFromISR()函数内部将会把*pxHigherPriorityTaskWoken参数设置为pdTRUE。
+
+**返回值**
+
+pdPASS：如果“执行函数”命令写入到了定时器命令队列，返回pdPASS。
+
+pdFAIL：如果“执行函数”命令不能被写入到定时器命令队列则返回pdFAIL，原因可能是定时器命令队列已经满了。更多详情请参考手册第五章节。
+
+Example 18 略。
+
+![image-20200908212327600](FreeRTOS_illustration/image-20200908212327600.png)
+
+#### 6.5 在中断服务程序中使用队列
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
