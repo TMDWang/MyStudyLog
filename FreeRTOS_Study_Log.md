@@ -1347,9 +1347,43 @@ Example 18 略。
 
 #### 6.5 在中断服务程序中使用队列
 
+二进制和计数信号量用于事件通信。队列除了用于事件通信之外，还可以传输数据。
+
+xQueueSendToFrontFromISR()和xQueueSendToBackFromISR()两个函数是xQueueSendToFront()和xQueueSendToBack()两个函数的在中断服务程序中使用的安全版本。同样的，xQueueReceiveFromISR()与xQueueReceive()函数也是如此。**他们只是使用的地方不同，他们的功能是相同的。**
+
+xQueueSendToFrontFromISR()和xQueueSendToBackFromISR() API函数原型如下:
+
+![image-20200912111414568](FreeRTOS_illustration/image-20200912111414568.png)
+
+**参数：**
+
+xQueue：数据要被发送（写入）到的队列句柄。这个句柄是在调用xQueueCreate()函数创建队列时的返回值。
+
+pvItemToQueue：指向将要被拷贝到队列中去的数据的指针。队列中每个数据项可以容纳的数据大小都在队列创建时已经设定，因此将会有很多字节的数据从pvItemToQueue指向的地方拷贝到队列的数据存储区。
+
+pxHigherPriorityTaskWoken：一个空队列可能会使一个或者多个任务处于阻塞状态，等待这个多列中有可以访问的数据。调用xQueueSendToFrontFromISR()或者xQueueSendToBackFromISR()函数可以发送数据到队列使其可以被访问，因此就可以使某个任务退出阻塞态。如果调用该API函数使一个任务退出了阻塞态，并且这个任务的优先级比当前运行（已经被中断）的任务优先级高，那么在API函数内部可以将*pxHigherPriorityTaskWoken的值设置为pdTRUE。
+
+**返回值：**
+
+pdPASS：只有数据被成功发送到多列时才会返回pdPASS。
+
+errQUEUE_FULL：如果数据因队列已经存满而不能成功发送到队列中，那么将返回errQUEUE_FULL。
+
+##### 6.5.1 在ISR中使用队列时的注意事项
+
+队列提供了一个简单方便的从中断服务程序到任务传输数据的方式，但是如果数据传输的频率很高，那么使用队列是没有效率的。
+
+在FreeRTOS download上的许多演示应用都包含一个简单的UART驱动，该驱动使用队列从UART的接收ISR中传递字符。在那些例程中使用队列的原因有：1.作为在中断服务程序中使用队列的演示；2.故意加载系统，以测试FreeRTOS端口。在中断服务程序中使用队列的这种方式肯定不是为了表达一个高效的程序设计，除非数据来的很慢，其他情况不推荐使用这种方式去编写代码。更加有效的合适编写代码的技巧，包括：
+
+- 使用直接内存存取（Direct Memory Access, DMA）硬件去接收和缓存字符。这种方法几乎没有软件开销。只有在检测到传输中断之后，使用direct to task notification可以解除处理缓存的任务的阻塞。
+- 拷贝每次接收到的字符到线程安全的RAM缓存中。同样的，在消息完全接受完之后，可以使用Direct to task notification解除处理缓存的任务的阻塞。
+- 直接在中断服务程序中处理接收到的字符，然后直接将处理数据的结果（而不是原始数据）使用队列发送到任务。
+
+Example19 略:smile:
 
 
 
+#### 6.6 中断嵌套（Interrupt Nesting）
 
 
 
