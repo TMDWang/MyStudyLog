@@ -1385,23 +1385,38 @@ Example19 略:smile:
 
 #### 6.6 中断嵌套（Interrupt Nesting）
 
+分配给中断的优先级与任务的优先级一点关系都没有。哪一个中断服务程序将被执行由硬件决定，任务的执行则由软件决定。响应硬件中断的中断服务程序将会中断任务的执行，但是任务绝不会抢占中断服务程序的执行。
 
+支持中断嵌套的端口需要表39中的一个或两个定义在FreeRTOSConfig.h头文件中的常量。configMAX_SYSCALL_INTERRUPT_PRIORITY和configMAX_API_CALL_INTERRUPT_PRIORITY两个常量做定义的性质一样，前者用于老的FreeRTOS端口，后者多用于新的FreeRTOS端口。
 
+![image-20200914234851562](FreeRTOS_illustration/image-20200914234851562.png)
 
+每一个中断都有一个数字的优先级和一个逻辑优先级。
 
+- 数字优先级（numeric priority）
 
+  数字优先级就是分配给中断优先级的数值。例如，如果一个中断的优先级是7，那么numeric priority就是7。
 
+- 逻辑优先级（logical priority）
 
+  中断的逻辑优先级描述了中断优先于其他中断。
 
+  如果同时出现了两个不同优先级的中断，那么，处理器将执行逻辑优先级高的中断服务程序，再执行逻辑优先级低的中断服务程序。
 
+  高逻辑优先级的中断可以中断低逻辑优先级的中断，不能中断同等以及更高逻辑优先级的中断。
 
+中断的数字优先级和逻辑优先级的关系取决于处理起的架构；在一些处理器上，越高数字优先级的中断就有越高的逻辑优先级，然而在其他的处理器架构上，分配的数字优先级余额大，其逻辑优先级则越小。
 
+一个完整的中断嵌套模型的创建，需要将configMAX_SYSCALL_INTERRUPT_PRIORITY的逻辑中断优先级设置的比configKERNEL_INTERRUPT_PRIORITY高。如下图所示，图中展示了：
 
+- 处理器有七种不同的中断优先级
+- 分配数字优先级为7的中断有最高的中断逻辑优先级，1则表示最小逻辑优先级。
+- configKERNEL_INTERRUPT_PRIORITY被设置为1。
+- configMAX_SYSCALL_INTERRUPT_PRIORITY设置为3。
 
+![image-20200915001621174](FreeRTOS_illustration/image-20200915001621174.png)
 
+从图中可以看出：
 
-
-
-
-
+- 257
 
