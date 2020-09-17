@@ -92,23 +92,23 @@ FreeRTOS中使用pvPortMalloc()和pvPortFree()代替C标准库中的malloc()和f
 
 Heap_1.c中只实现了一个非常基础的pvPortMalloc()版本，没有实现pvPortFree()。因此适用于从不删除任务或者内核对象的应用。
 
-![image-20200804232247161](FreeRTOS_illustration/image-20200804232247161.png)
+![image-20200804232247161](illustration/image-20200804232247161.png)
 
 Heap_4.c相当于Heap_2.c的增强版，在设计中推荐使用前者，保留后者是为了向下兼容。相比于Heap_1.c，Heap_2.c中允许释放内存。Heap_2.c不能像Heap_4.c可以把相邻的小内存块合并成大内存块，因此会产生内存碎片，不过它适用于重复创建删除占用相同内存大小任务的应用中。
 
-![image-20200804232329557](FreeRTOS_illustration/image-20200804232329557.png)
+![image-20200804232329557](illustration/image-20200804232329557.png)
 
 Heap_3.c使用标准库中的malloc() & free()函数，因此堆内存的大小由连接器配置决定，不受configTOTAL_HEAP_SIZE设置的影响。Heap_3.c通过暂时挂起FreeRTOS调度器保证malloc() & free()函数thread-safe。
 
 Heap_4.c同Heap_1.c和Heap_2.c一样将内存分为小块，且被静态分配。如前所述，Heap_4.c可以将临近的内存合并到一起，因此它适用于任务被重复创建和删除的应用，任务所占内存大小可不相同。
 
-![image-20200804233951224](FreeRTOS_illustration/image-20200804233951224.png)
+![image-20200804233951224](illustration/image-20200804233951224.png)
 
 Heap_5.c中使用的内存分配与释放算法与Heap_4.c相同，但它不局限于分配单个静态声明的内存区域，它可以从多块分离的内存空间中分配内存。当FreeRTOS运行在系统内存映射不是一个连续的内存块是，它是相当有用的。
 
 （只有）在使用Heap_5.c内提供的pvPortMalloc()函数时，必须提前明确地使用vPortDefineHeapRegions()函数初始化所使用的内存分配方案。在创建任何的内核对象（任务，队列，信号量等）之前必须先调用vPortDefineRegions()，该函数用来指定每一个内存块的开始地址和其大小，所有的内存块供Heap_5.c使用。（更详尽的说明尽在内核手册）
 
-![image-20200806234149698](FreeRTOS_illustration/image-20200806234149698.png)
+![image-20200806234149698](illustration/image-20200806234149698.png)
 
 ### 3 任务管理
 
@@ -120,13 +120,13 @@ void ATaskFunction(void *pvParameters);
 
 **每个任务本身都是一个小程序，它有一个入口点，通常会一直运行在死循环中，并永远不会退出。**FreeRTOS任务绝不允许从它的实现函数中以任何方式退出，不能包含return语句，不允许在函数结束时运行。如果任务不再需要了，可以删除它。下图为创建任务的例子。
 
-![image-20200807002419298](FreeRTOS_illustration/image-20200807002419298.png)
+![image-20200807002419298](illustration/image-20200807002419298.png)
 
 #### 3.1 任务状态（Task States）
 
 一个应用程序可以由许多任务组成。单核处理器运行应用程序时在任一时刻只有一个任务可以执行。这意味着任务可以有运行（Running）和非运行（Not Running）两个状态。
 
-![image-20200807165136069](FreeRTOS_illustration/image-20200807165136069.png)
+![image-20200807165136069](illustration/image-20200807165136069.png)
 
 任务从非运行态转化到运行态时称为"switched in"或者"swapped in"。相反的，任务宠运行态转化到非运行态称为"switched out"或"swapped out"。**FreeRTOS scheduler（调度器）是唯一可以转换任务状态的实体**。
 
@@ -136,7 +136,7 @@ void ATaskFunction(void *pvParameters);
 
 xTaskCreate()函数用于创建任务（此函数可能是最复杂的API Functions），在FreeRTOS V9.0.0中还包含xTaskCreateStatic()函数，该函数在编译时为任务的创建静态分配内存。xTaskCreate()函数原型如下图所示：
 
-![image-20200808035645183](FreeRTOS_illustration/image-20200808035645183.png)
+![image-20200808035645183](illustration/image-20200808035645183.png)
 
 **参数**
 
@@ -180,7 +180,7 @@ FreeRTOS调度器会确保当前可运行的任务中任务优先级最高的进
 
 在后面的调度算法章节中将会讲述被称为时间片的可选特征。到目前位置，前面的例子（在书中，我没摘抄下来）中都使用的时时间片，从他们的输出中可以观察到时间片的使用。在例子中，两个任务创建时拥有相同的优先级，都可以运行。因此，每个任务运行一个时间片的时间，在时间片开始时进入运行态，在时间片结束时退出运行态。在下图中，t1到t2之间的时间长度为一个时间片。
 
-![image-20200808165422689](FreeRTOS_illustration/image-20200808165422689.png)
+![image-20200808165422689](illustration/image-20200808165422689.png)
 
 **为了能够选择下一个要执行的任务，调度器本身必须在每个时间片结束时运行。被称为tick interrupt的周期中断，就是为了此目的。**时间片的长度由tick终端频率决定，该常量configTICK_RATE_HZ的值在FreeRTOSConfig.h文件中定义，编译时配置完成。举个栗子，如果**configTICK_RATE_HZ**设置为100，则时间片的长度为10毫秒。两次tick中断之间的长度称为tick周期，其就等于一个时间片的长度。
 
@@ -217,7 +217,7 @@ FreeRTOS queue, binary semaphores, counting semaphores, mutexes, recurisive mute
 
 ##### 3.5.4 完整的状态转换图示
 
-![image-20200809201608956](FreeRTOS_illustration/image-20200809201608956.png)
+![image-20200809201608956](illustration/image-20200809201608956.png)
 
 更优秀的例子在内核使用手册中。
 
@@ -225,13 +225,13 @@ FreeRTOS queue, binary semaphores, counting semaphores, mutexes, recurisive mute
 
 在之前的例子中使用的延时手段会占用处理器的运行时间，在延时这段时间内其实任务没有需要做的工作，这浪会费资源，因此使用**vTaskDelay()**函数来进行延时，并使得调用延时的任务进入阻塞状态，把处理器暂时让出来供其他任务使用。在FreeRTOSConfig.h文件中设置**INCLUDE_vTaskDelay**设置为1时，vTaskDelay()函数才能够被调用。其函数原型如下图所示：
 
-![image-20200809203320172](FreeRTOS_illustration/image-20200809203326630.png)
+![image-20200809203320172](illustration/image-20200809203326630.png)
 
 **参数**
 
 xTicksToDelay：调用该延时函数的任务从阻塞态转换为就绪态所持续的滴答中断的数量。例如，一个任务调用函数vTaskDelay( 100 )时滴答计数的值为10000，此时该任务立即进入阻塞态，一直持续到滴答计数增长到10100时。宏pdMS_TO_TICKS()可以用来将以毫秒为单位的时间值转换为相应的滴答中断（周期）数。下图为一个任务函数：
 
-![image-20200809205020595](FreeRTOS_illustration/image-20200809205020595.png)
+![image-20200809205020595](illustration/image-20200809205020595.png)
 
 当调度器被调用时，为了保证在任一时刻至少有一个任务可以运行（或者说在就绪状态），空闲任务（idle task）自动被创建。
 
@@ -239,7 +239,7 @@ xTicksToDelay：调用该延时函数的任务从阻塞态转换为就绪态所�
 
 vTaskDelayUnitl()的参数指定了精确的滴答计数值，在达到该计数值时，调用vTaskDelayUntil()函数的任务应从阻塞态转为就绪态。vTaskDelayUntil()函数用于有固定执行周期的需求任务（当你想要你的任务以一个固定的频率，周期性的执行），因为调用任务被解除阻塞的时间是绝对的，而不是相对于函数被调用的时间。其函数原型如下图所示：
 
-![image-20200809223359071](FreeRTOS_illustration/image-20200809223359071.png)
+![image-20200809223359071](illustration/image-20200809223359071.png)
 
 **参数**
 
@@ -251,7 +251,7 @@ xTimeIncrement：该名字的又来同上假设，任务的固定频率由该参
 
 下图为结合了周期性任务和连续性任务的示例执行时序图，下图中的例子在手册中。
 
-![image-20200809232247292](FreeRTOS_illustration/image-20200809232247292.png)
+![image-20200809232247292](illustration/image-20200809232247292.png)
 
 #### 3.6 空闲任务 & 空闲任务钩子（The Idle Task & the Idle Task Hook）
 
@@ -284,7 +284,7 @@ xTimeIncrement：该名字的又来同上假设，任务的固定频率由该参
 
 下图为空闲钩子函数的一个实例：
 
-![image-20200810175504541](FreeRTOS_illustration/image-20200810175504541.png)
+![image-20200810175504541](illustration/image-20200810175504541.png)
 
 空闲钩子函数必须以vApplicationIdleHook()命名，且没有参数，也返回空void。**自动被调用。**
 
@@ -294,7 +294,7 @@ xTimeIncrement：该名字的又来同上假设，任务的固定频率由该参
 
 在调度器开始调度之后，vTaskPrioritySet()函数可以修改任意任务的优先级。不过要使用vTaskPrioritySet()函数必须在FreeRTOSconfig.h头文件中将INCLUDE_vTaskPrioritySet设置为1。其函数原型如下图所示：
 
-![image-20200810183710171](FreeRTOS_illustration/image-20200810183710171.png)
+![image-20200810183710171](illustration/image-20200810183710171.png)
 
 **参数**
 
@@ -304,7 +304,7 @@ uxNewPriority：任务的新优先级。
 
 uxTaskPriorityGet()函数可以用来询问任务的优先级。要使用该函数，需在FreeRTOSconfig.h头文件中将INCLUDE_uxTaskPriorityGet设置为1。其函数原型如下图所示：
 
-![image-20200810184600461](FreeRTOS_illustration/image-20200810184600461.png)
+![image-20200810184600461](illustration/image-20200810184600461.png)
 
 **参数**
 
@@ -324,7 +324,7 @@ pxTask：被询问优先级的任务句柄。任务可以通过NULL作为该参�
 
 vTaskDelete()函数的原型如下图所示：
 
-![image-20200810195558450](FreeRTOS_illustration/image-20200810195558450.png)
+![image-20200810195558450](illustration/image-20200810195558450.png)
 
 **参数**
 
@@ -332,7 +332,7 @@ pxTaskToDelete：要被删除的函数句柄。任务可以通过输入NULL作�
 
 例子在手册中，下图是例子的执行时序图。
 
-![image-20200810200542602](FreeRTOS_illustration/image-20200810200542602.png)
+![image-20200810200542602](illustration/image-20200810200542602.png)
 
 #### 3.9 线程本地存储（Thread Local Storage）
 
@@ -370,15 +370,15 @@ Time Slicing：时间分片用来使相同优先级的任务共享运行时间�
 
 调度机制可以参看下面两个图：
 
-![image-20200811235513052](FreeRTOS_illustration/image-20200811235513052.png)
+![image-20200811235513052](illustration/image-20200811235513052.png)
 
-![image-20200811235620794](FreeRTOS_illustration/image-20200811235620794.png)
+![image-20200811235620794](illustration/image-20200811235620794.png)
 
 有关上图详细的解释，尽在手册中。
 
 图27中的情形是不太合适的，因为分配给空闲任务的运行时间太多了，因此可以利用钱买你提到的可选的高级选项configIDLE_SHOULD_YIELD来优化系统的调度算法。当该常量设置为0是，既是图27所示，配置为1时，则如下图28所示：
 
-![image-20200812001615861](FreeRTOS_illustration/image-20200812001615861.png)
+![image-20200812001615861](illustration/image-20200812001615861.png)
 
 当配置为1时，如果有同空闲任务优先级的任务进入就绪态时，空闲任务将自动的在其循环的每次迭代中退出运行态，不管它的时间片还剩下多少。（**空闲任务会执行一个循环**）
 
@@ -396,7 +396,7 @@ Time Slicing：时间分片用来使相同优先级的任务共享运行时间�
 
 不使用时间片轮调，会少产生很多上下文切换。因此，也降低了调度器的处理开支。但，如下图所示，不使用时间片轮调会造成分配给具有相同优先级任务的运行时间相差很大。所以，不建议你使用这种算法，除非你是很有经验的开发者。
 
-![image-20200812131731188](FreeRTOS_illustration/image-20200812131731188.png)
+![image-20200812131731188](illustration/image-20200812131731188.png)
 
 ##### 3.10.5 协作调度（Co-operative Scheduling）
 
@@ -404,7 +404,7 @@ FreeRTOS也提供了协作调度机制，要使用该调度机制只需在FreeRT
 
 当使用协作调度算法时，任务的上下文切换将只发生在运行态任务进入阻塞态或者处于运行态的任务通过调用taskYIELD()函数被显示地挂起（手动请求调度器重新调度）时。其他任何情况下，任务不会被抢占，时间片调度机制也不会被使用。下图展示了该调度算法的行为。
 
-![image-20200812135042369](FreeRTOS_illustration/image-20200812135042369.png)
+![image-20200812135042369](illustration/image-20200812135042369.png)
 
 在多任务应用中，程序开发者应格外小心同一个资源不能同时被多个任务同时使用，例如两个任务都向一个串口写入数据，任务1写入“abcdefghijklmnop”，任务2写入“123456789”：
 
@@ -428,7 +428,7 @@ FreeRTOS也提供了协作调度机制，要使用该调度机制只需在FreeRT
 
 Queues经常被用作先进先出（First In First Out）缓存，使用时数据写入到队列的末尾，读出时从头部开始读取。下图既是一个FIFO队列的示意图，向队列的头部写入数据也是有可能的，此时会将原来处于队列头部的数据覆盖掉。
 
-![image-20200812234657084](FreeRTOS_illustration/image-20200812234657084.png)
+![image-20200812234657084](illustration/image-20200812234657084.png)
 
 有以下两种方法可以实现队列行为：
 
@@ -473,7 +473,7 @@ Queues经常被用作先进先出（First In First Out）缓存，使用时数�
 
 队列可以通过队列句柄被使用，队列句柄的变量类型是QueueHandle_t。xQueueCreate()函数可以创建一个队列并返回一个QueueHandle_t类型的句柄，以引用刚才创建的队列。FreeRTOS V9.0.0之后的版本增加了**xQueueCreateStatic()**函数，允许在编译时静态地分配队列所需的内存。当队列被创建时，FreeRTOS分配从FreeRTOS堆内存中分配RAM给队列。分配的内存用来存储队列中包含的结构或者数据项。如果FreeRTOS中没有足够的内存分配给队列时，**xQueueCreate()**函数将返回NULL。其函数原型如下图所示：
 
-![image-20200813182155922](FreeRTOS_illustration/image-20200813182155922.png)
+![image-20200813182155922](illustration/image-20200813182155922.png)
 
 **参数**
 
@@ -499,7 +499,7 @@ non-NULL：返回一个非空值表示创建队列成功。返回值应保存为
 
 函数原型如下所示：
 
-![image-20200813192259321](FreeRTOS_illustration/image-20200813192259321.png)
+![image-20200813192259321](illustration/image-20200813192259321.png)
 
 **参数**
 
@@ -523,7 +523,7 @@ xQueueReceive()函数用来从队列中接收（读取）一个数据项。读�
 
 注意：绝不能从中断服务程序中调用xQueueReceive()函数。应选用安全的适用于中断的xQueueReceiveFromISR()函数。该函数将在第六章讲述。
 
-![image-20200814232352751](FreeRTOS_illustration/image-20200814232352751.png)
+![image-20200814232352751](illustration/image-20200814232352751.png)
 
 **参数**
 
@@ -549,7 +549,7 @@ uxQueueMessagesWaiting()函数用来询问（查询）一个队列当前存储�
 
 **注意**：在中断服务程序中调用uxQueueMessagesWaitingFromISR()函数，绝不能调用uxQueueMessagesWaiting()函数。
 
-![image-20200814235432075](FreeRTOS_illustration/image-20200814235432075.png)
+![image-20200814235432075](illustration/image-20200814235432075.png)
 
 **参数**
 
@@ -563,7 +563,7 @@ xQueue：被查询队列的句柄。该句柄为创建该队列时，xQueueCreat
 
 FreeRTOS开发者普遍会使一个任务从多个源头接收数据。接收数据的任务需要知道它接收的数据来自哪里？并以此判断如何处理该数据。一个简单的解决办法是使用一个队列传输一个同时包含数据值和其来源的结构体。该方法如下图所示：
 
-![image-20200815221309907](FreeRTOS_illustration/image-20200815221309907.png)
+![image-20200815221309907](illustration/image-20200815221309907.png)
 
 从图中可以看出：
 
@@ -631,7 +631,7 @@ FreeRTOS开发者普遍会使一个任务从多个源头接收数据。接收数
 
 利用句柄引用队列集合，句柄的数据类型为QueueSetHandle_t。xQueueCreateSet()函数创建一个队列集合并返回一个引用该集合的QueueSetHandle_t变量的句柄。其函数原型如下：
 
-![image-20200816231803968](FreeRTOS_illustration/image-20200816231803968.png)
+![image-20200816231803968](illustration/image-20200816231803968.png)
 
 **参数**
 
@@ -647,7 +647,7 @@ A non-NULL：非NULL值，表示创建队列集合成功，返回的值应该被
 
 xQueueAddToSet()函数用来添加队列或信号量到一个队列集合。其函数原型如下：
 
-![image-20200816234426017](FreeRTOS_illustration/image-20200816234426017.png)
+![image-20200816234426017](illustration/image-20200816234426017.png)
 
 **参数**
 
@@ -669,7 +669,7 @@ xQueueSelectFromSet()函数用于从队列集合中读出一个队列句柄。
 
 注意：不要从集合中的队列或信号量中读取数据，除非队列或信号量的句柄已经从xQueueSelectFromSet()调用中返回。只有当句柄从xQueueSelectFromSet()函数中返回时才可以读取队列或者信号量。
 
-![image-20200817232136089](FreeRTOS_illustration/image-20200817232136089.png)
+![image-20200817232136089](illustration/image-20200817232136089.png)
 
 **参数**
 
@@ -700,7 +700,7 @@ xQueueOverwrite()函数应只用在长度为1的队列中。这种限制避免�
 
 注意：在中断服务程序中一定要使用中断安全版本的xQueueOverwriteFromISR()函数，不能使用xQueueOverwrite()函数。
 
-![image-20200818235901483](FreeRTOS_illustration/image-20200818235901483.png)
+![image-20200818235901483](illustration/image-20200818235901483.png)
 
 **参数**
 
@@ -718,7 +718,7 @@ xQueuePeek()函数用来从队列中接收（读取）数据项，并且读取�
 
 注意：在中断服务程序中一定要使用xQueuePeekFromISR()函数，绝不能使用xQueuePeek()函数。
 
-![image-20200819001651954](FreeRTOS_illustration/image-20200819001651954.png)
+![image-20200819001651954](illustration/image-20200819001651954.png)
 
 xQueuePeek()函数的参数与返回值与xQueueReceive()函数相同。
 
@@ -747,7 +747,7 @@ xQueuePeek()函数的参数与返回值与xQueueReceive()函数相同。
 
 软件定时器**回调函数**同样也是由C语言实现。唯一特别的是它的函数原型，**必须返回void**，并且**将该软件定时器的句柄作为其唯一的参数**。回调函数的原型如下所示：
 
-![image-20200820230603927](FreeRTOS_illustration/image-20200820230603927.png)
+![image-20200820230603927](illustration/image-20200820230603927.png)
 
 软件定时器回调函数从开始执行到结束，按正常的方式退出。回调函数应很小，并且绝不能进入阻塞状态。
 
@@ -771,7 +771,7 @@ xQueuePeek()函数的参数与返回值与xQueueReceive()函数相同。
 
 下图展示了one-shot timer和auto-reload timer之间行为的不同。途中竖直的虚线表示滴答中断的发生时刻。
 
-![image-20200820233559694](FreeRTOS_illustration/image-20200820233559694.png)
+![image-20200820233559694](illustration/image-20200820233559694.png)
 
 ##### 5.2.3 软件定时器状态
 
@@ -789,9 +789,9 @@ xQueuePeek()函数的参数与返回值与xQueueReceive()函数相同。
 
 xTimerDelete()函数将删除一个定时器，定时器可在在任何时刻被删除。
 
-![image-20200820235615837](FreeRTOS_illustration/image-20200820235615837.png)
+![image-20200820235615837](illustration/image-20200820235615837.png)
 
-![image-20200820235652999](FreeRTOS_illustration/image-20200820235652999.png)
+![image-20200820235652999](illustration/image-20200820235652999.png)
 
 #### 5.3 软件定时器的上下文（context）
 
@@ -807,7 +807,7 @@ xTimerDelete()函数将删除一个定时器，定时器可在在任何时刻被
 
 软件定时器应用程序接口函数从**调用任务（calling task）**发送命令到守护进程任务所使用的队列，被称为定时器命令队列。定时器命令队列如下图所示。命令包括开启定时器、停止定时器、重置定时器。
 
-![image-20200821115410344](FreeRTOS_illustration/image-20200821115410344.png)
+![image-20200821115410344](illustration/image-20200821115410344.png)
 
 定时器命令队列是一个标准的FreeRTOS队列，当调度器开始的时候被自动创建。定时器命令队列的长度在编译时由FreeRTOSConfig.h头文件中的configTIMER_QUEUE_LENGTH常量配置。
 
@@ -815,7 +815,7 @@ xTimerDelete()函数将删除一个定时器，定时器可在在任何时刻被
 
 守护进程程序同其他任何FreeRTOS任务一样被调度；当它处于就绪态任务中且优先级最高时就可以进入运行态，它只负责处理命令或执行定时器回调函数。下面两个图展示了设置configTIMER_TASK_PRIORITY常量不同的值（优先级）对定时器任务的影响。
 
-![image-20200821132619604](FreeRTOS_illustration/image-20200821132619604.png)
+![image-20200821132619604](illustration/image-20200821132619604.png)
 
 上图展示了当守护进程任务的优先级比调用xTimerStart()函数启动定时器的任务优先级低的时候，系统的执行模式。从图中可以看出Task1优先级>Deamon Task优先级>Idle优先级。
 
@@ -849,7 +849,7 @@ xTimerDelete()函数将删除一个定时器，定时器可在在任何时刻被
 
    此时就绪态中，空闲任务的优先级最高，因此调度器选择空闲任务进入运行态。
 
-![image-20200821132646912](FreeRTOS_illustration/image-20200821132646912.png)
+![image-20200821132646912](illustration/image-20200821132646912.png)
 
 上图与上上图类似，但是在此处守护进程任务的优先级高于调用xTimerStart()函数的的任务优先级。
 
@@ -891,7 +891,7 @@ xTimerDelete()函数将删除一个定时器，定时器可在在任何时刻被
 
 软件定时器可以在调度器运行之前创建，也可以在调度器运行之后从任务中创建。
 
-![image-20200821213048940](FreeRTOS_illustration/image-20200821213048940.png)
+![image-20200821213048940](illustration/image-20200821213048940.png)
 
 **参数**
 
@@ -921,7 +921,7 @@ xTimerStart()函数可以在调度器启动之前调用，但是即使那样，�
 
 注意：绝不能在中断服务程序中调用xTimerStart()函数。更安全的做法是调用xTimerStartFromISR()。
 
-![image-20200822002451044](FreeRTOS_illustration/image-20200822002451044.png)
+![image-20200822002451044](illustration/image-20200822002451044.png)
 
 **参数**
 
@@ -957,7 +957,7 @@ xTimerStart()函数可以在调度器启动之前调用，但是即使那样，�
 
 vTimerSetTimerID()函数原型如下图所示：
 
-![image-20200822125508741](FreeRTOS_illustration/image-20200822125508741.png)
+![image-20200822125508741](illustration/image-20200822125508741.png)
 
 **参数**
 
@@ -967,7 +967,7 @@ pvNewID：要设置的新的软件定时器ID。
 
 pvTimerGetTimerID()函数原型如下图所示：
 
-![image-20200822135249251](FreeRTOS_illustration/image-20200822135249251.png)
+![image-20200822135249251](illustration/image-20200822135249251.png)
 
 **参数**
 
@@ -997,7 +997,7 @@ xTimerChangePeriod()函数用于改变一个软件定时器的周期。
 
 xTimerChangePeriod()函数的原型如下：
 
-![image-20200822184034087](FreeRTOS_illustration/image-20200822184034087.png)
+![image-20200822184034087](illustration/image-20200822184034087.png)
 
 **参数**
 
@@ -1019,7 +1019,7 @@ pdFALSE：如果“改变周期”命令由于定时器命令队列已满而不�
 
 重置软件定时器意味着重新开启这个定时器；定时器的到期时间将从定时器重启时重新计算。如下图所示，定时器开启时其周期为6tick，然后在其最终的到期时间到来（回调函数被执行）之前两被次重启。
 
-![image-20200822212930026](FreeRTOS_illustration/image-20200822212930026.png)
+![image-20200822212930026](illustration/image-20200822212930026.png)
 
 ##### 5.7.1 xTimerReset()函数
 
@@ -1027,7 +1027,7 @@ xTimerReset()用于重新开始定时器。xTimerReset()同样也可以用于开
 
 注意：绝不能在中断服务程序中使用xTimerReset()函数，要使用中断-安全版本，xTimerResetFromISR()函数。
 
-![image-20200822214212806](FreeRTOS_illustration/image-20200822214212806.png)
+![image-20200822214212806](illustration/image-20200822214212806.png)
 
 **参数**
 
@@ -1137,7 +1137,7 @@ pxHigherPriorityTaskWoken参数的使用是可选的，不使用时需将pxHighe
 
 taskYIELD()宏在任务中被调用，用于请求上下文切换。portYIELD_FROM_ISR()和portEND_SWITCHING_ISR()是两个功能同taskYIELD()的中断安全版本的宏。这两个宏的使用方法和作用相同。一些FreeRTOS端口只提供了两个中的一个宏。更新的FreeRTOS端口则会两个都提供。手册中使用的是portYIELD_FROM_ISR()。两个宏的声明如下图所示：
 
-![image-20200830232748059](FreeRTOS_illustration/image-20200830232748059.png)
+![image-20200830232748059](illustration/image-20200830232748059.png)
 
 xHigherPriorityTaskWoken参数被中断安全版的API函数操作之后，可以直接作为调用的portYIELD_FROM_ISR()宏的参数。
 
@@ -1161,7 +1161,7 @@ xHigherPriorityTaskWoken参数被中断安全版的API函数操作之后，可�
 
 如果执行中断处理的的任务的优先级高于所有的其他任务，那么这个执行中断处理的任务将会立即执行，就像这些处理是在中断服务程序中执行一样。下图展示的就是这种情况，图中Task1是应用中的一个普通的任务，Task2是中断处理所递延到的任务。
 
-![image-20200831003022074](FreeRTOS_illustration/image-20200831003022074.png)
+![image-20200831003022074](illustration/image-20200831003022074.png)
 
 在上图中，中断处理在t2时刻开始，真正结束是在t4时刻，这样说是因为只有t2到t3时刻之间的处理是在中断服务程序中的，其他的处理都递延到了Task2中。如果不使用“递延中断处理”，那么t2到t4时刻将都在中断服务程序中进行处理。
 
@@ -1177,7 +1177,7 @@ xHigherPriorityTaskWoken参数被中断安全版的API函数操作之后，可�
 
 在上面那个图中，如果中断处理是硬实时的，那么递中断所递延的任务的优先级应该设置到比较高，以确保任务总是抢占系统中其他任务的运行。在ISR中可以调用portYIELD_FROM_ISR()（请求上下文切换），确保ISR直接退出到该中断处理所递延到的任务。这就有效的保证了中断处理可以连续完整的执行（时间上连续，无退出），就好像所有的操作都在中断服务程序中执行一样。下图复现了上图的情况，但是描述不一样，下图描述了二元信号量如何控制递延处理任务的执行。
 
-![image-20200901233939414](FreeRTOS_illustration/image-20200901233939414.png)
+![image-20200901233939414](illustration/image-20200901233939414.png)
 
 递延处理任务使用‘take’调用信号量的方式使自己进入阻塞状态，以等待事件（中断）发生。当事件发生时，中断服务程序在相同的信号量上使用‘give’操作，以使任务解阻塞进而使得处理中断的程序得以执行。
 
@@ -1185,7 +1185,7 @@ xHigherPriorityTaskWoken参数被中断安全版的API函数操作之后，可�
 
 在其他的信号量使用场景中会与现在所使用二进制信号量不同，不同之处在于，任务使用信号量之后经常是必须送回信号量。
 
-![image-20200903002310783](FreeRTOS_illustration/image-20200903002310783.png)
+![image-20200903002310783](illustration/image-20200903002310783.png)
 
 ##### 6.3.1 xSemaphoreCreateBinary() API函数
 
@@ -1193,7 +1193,7 @@ xHigherPriorityTaskWoken参数被中断安全版的API函数操作之后，可�
 
 同样，在使用他之前，必须创建它。xSemaphoreCreateBinary() API函数用于创建binary semphore。其函数原型如下图所示
 
-![image-20200903003528403](FreeRTOS_illustration/image-20200903003528403.png)
+![image-20200903003528403](illustration/image-20200903003528403.png)
 
 **参数**
 
@@ -1213,7 +1213,7 @@ non-NULL：如果创建成功，则会返回一个非NULL的值，这个非空�
 
 **xSemaphoreTake()函数据不能在中断服务程序中调用。**其函数原型如下图所示：
 
-![image-20200903005709731](FreeRTOS_illustration/image-20200903005709731.png)
+![image-20200903005709731](illustration/image-20200903005709731.png)
 
 **参数**
 
@@ -1235,7 +1235,7 @@ pdFALSE：信号量获取不到。
 
 xSemaphoreGiveFromISR()函数时xSemaphoreGive()函数的中断安全版本，因此这个函数需要的pxHigherPriorityTaskWoken参数在这节最开始就已经介绍。其函数原型如下所示：
 
-![image-20200904000352659](FreeRTOS_illustration/image-20200904000352659.png)
+![image-20200904000352659](illustration/image-20200904000352659.png)
 
 **参数**
 
@@ -1265,7 +1265,7 @@ pdFAIL：如果一个信号量已经是可获取的，不可以在被释放，�
 
 用于记录事件发生次数的计数信号量的计数值（count value）在创建时都会被初始化为0。
 
-![image-20200905134516411](FreeRTOS_illustration/image-20200905134516411.png)
+![image-20200905134516411](illustration/image-20200905134516411.png)
 
 2. **资源管理（Resource management）**
 
@@ -1279,7 +1279,7 @@ pdFAIL：如果一个信号量已经是可获取的，不可以在被释放，�
 
 在一个信号量可以被使用时，必须先创建它。要创建一个计数信号量，你需要使用xSemaphoreCreateCounting()函数。其函数原型如下所示：
 
-![image-20200905141145408](FreeRTOS_illustration/image-20200905141145408.png)
+![image-20200905141145408](illustration/image-20200905141145408.png)
 
 **参数**
 
@@ -1323,7 +1323,7 @@ non-NULL：返回一个非NULL值表示创建信号量成功，这个返回的�
 
 xTimerPendFunctionCallFromISR()函数是xTimerPendFunctionCall()函数在中断中使用的安全版本。两个函数都允许应用开发者编写的函数在RTOS的守护进程任务的上下文中执行。需要执行的函数和函数输入参数的值都通过定时器命令队列发送到守护进程任务。函数何时能够真正的运行还是要取决与守护进程任务和程序中其他任务的优先级的对比。其函数原型如下图所示：
 
-![image-20200908193119451](FreeRTOS_illustration/image-20200908193119451.png)
+![image-20200908193119451](illustration/image-20200908193119451.png)
 
 **参数**
 
@@ -1343,7 +1343,7 @@ pdFAIL：如果“执行函数”命令不能被写入到定时器命令队列�
 
 Example 18 略。
 
-![image-20200908212327600](FreeRTOS_illustration/image-20200908212327600.png)
+![image-20200908212327600](illustration/image-20200908212327600.png)
 
 #### 6.5 在中断服务程序中使用队列
 
@@ -1353,7 +1353,7 @@ xQueueSendToFrontFromISR()和xQueueSendToBackFromISR()两个函数是xQueueSendT
 
 xQueueSendToFrontFromISR()和xQueueSendToBackFromISR() API函数原型如下:
 
-![image-20200912111414568](FreeRTOS_illustration/image-20200912111414568.png)
+![image-20200912111414568](illustration/image-20200912111414568.png)
 
 **参数：**
 
@@ -1389,7 +1389,7 @@ Example19 略:smile:
 
 支持中断嵌套的端口需要表39中的一个或两个定义在FreeRTOSConfig.h头文件中的常量。configMAX_SYSCALL_INTERRUPT_PRIORITY和configMAX_API_CALL_INTERRUPT_PRIORITY两个常量做定义的性质一样，前者用于老的FreeRTOS端口，后者多用于新的FreeRTOS端口。
 
-![image-20200914234851562](FreeRTOS_illustration/image-20200914234851562.png)
+![image-20200914234851562](illustration/image-20200914234851562.png)
 
 每一个中断都有一个数字的优先级和一个逻辑优先级。
 
@@ -1414,9 +1414,17 @@ Example19 略:smile:
 - configKERNEL_INTERRUPT_PRIORITY被设置为1。
 - configMAX_SYSCALL_INTERRUPT_PRIORITY设置为3。
 
-![image-20200915001621174](FreeRTOS_illustration/image-20200915001621174.png)
+![image-20200915001621174](illustration/image-20200915001621174.png)
 
 从图中可以看出：
 
-- 257
+- 优先级处于[1, 3]的中断，当内核或应用程序处于临界区中时，禁止执行。优先级处于临界区的中断服务程序运行时可以使用interrupt-safe FreeRTOS API函数。临界区将在第七章节描述。
+- 优先级处于4及4以上的中断，不受临界区的影响，所以这些中断的立即执行不会受调度程序的组织，它只受限于硬件本身。处于该区域优先级的中断不能使用FreeRTOS API函数。
+- 一般地，在时间精度上有苛刻要求的功能（例如，电机控制）将会分配一个高于configMAX_SYSCALL_INTERRUPT_PRIORITY的优先级，以确保在中断响应时调度器不会引入抖动。
+
+configKERNEL_INTERRUPT_PRIORITY必须设置为最小的中断优先级。
+
+configMAX_SYSCALL_INTERRUPT_PRIORITY不允许设置为最高中断优先级。
+
+### 7 资源管理（Resource Management）
 
