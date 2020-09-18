@@ -1418,5 +1418,13 @@ Example19 略:smile:
 
 从图中可以看出：
 
-- 257
+- 优先级处于[1, 3]的中断，当内核或应用程序处于临界区中时，禁止执行。优先级处于临界区的中断服务程序运行时可以使用interrupt-safe FreeRTOS API函数。临界区将在第七章节描述。
+- 优先级处于4及4以上的中断，不受临界区的影响，所以这些中断的立即执行不会受调度程序的组织，它只受限于硬件本身。处于该区域优先级的中断不能使用FreeRTOS API函数。
+- 一般地，在时间精度上有苛刻要求的功能（例如，电机控制）将会分配一个高于configMAX_SYSCALL_INTERRUPT_PRIORITY的优先级，以确保在中断响应时调度器不会引入抖动。
+
+configKERNEL_INTERRUPT_PRIORITY必须设置为最小的中断优先级。
+
+configMAX_SYSCALL_INTERRUPT_PRIORITY不允许设置为最高中断优先级。
+
+### 7 资源管理（Resource Management）
 
