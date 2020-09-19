@@ -79,7 +79,15 @@ aligned、packed、transparent_union、unused、deprecated、may_alias
 
 
 
+##### 1.14 sizeof()
 
+使用sizeof()获取变量所占内存大小时，由于字节对齐问题，可能会得到与预期不符的结果。特别是在获取结构体所占内存大小时（in bytes）。
+
+```
+sizeof(int);
+sizeof(word);
+......
+```
 
 
 
