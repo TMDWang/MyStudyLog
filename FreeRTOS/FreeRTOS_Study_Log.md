@@ -1512,6 +1512,7 @@ taskENTER_CRITICAL_FROM_ISR()会返回一个值，这个值必须输入到与之
 
 ##### 7.1.2 Suspending (or Locking) the Scheduler
 
+<<<<<<< HEAD
 临界区也可以通过挂起调度器来创建。挂起调度器有时也叫做’锁定‘调度器。
 
 Basic临界区保护了一段代码，使其不能被其他任务和中断所访问。由挂起调度器实现的临界区仅保护这段代码不被其他任务访问，中断则仍然可以访问。
@@ -1564,7 +1565,6 @@ pdTRUE or pdFALSE：在调度器被挂起期间请求的上下文切换将也被
 7.2.1 xSemaphoreCreateMutex() API函数
 
 P272
-
 
 
 
