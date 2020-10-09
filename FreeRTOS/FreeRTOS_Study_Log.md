@@ -1637,7 +1637,33 @@ Deadlock是使用互斥锁的另一个潜在缺陷。
 
 ![image-20201009115505542](illustration/image-20201009115505542.png)
 
-P282
+互斥器与任务调度（Mutexes and Task Scheduling）
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
