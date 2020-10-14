@@ -1746,12 +1746,42 @@ tick hook时钟钩子（tick callback时钟回调）函数是在每一个滴答�
 
 在FreeRTOS V9.0.0版本中也包含xEventGroupCreateStatic()函数，这个函数可以在编译时静态地为创建的事件组分配内存。事件组在能够被使用之前必须明确的创建它。
 
-P298
+Event groups使用变量类型为EventGroupHandle_t的变量来引用它。xEventGroupCreate() API函数用于创建事件组，该函数返回一个EventGroupHandle_t类型的变量来引用它创建的事件组。函数原型如下图所示：
 
+![image-20201013201933654](illustration/image-20201013201933654.png)
 
+**参数**
 
+void：无输入参数
 
+**返回值**
 
+NULL：如果返回NULL，则由于没有足够的内存可以供FreeRTOS分配给事件组数据结构所需要的大小，而没有创建成功。
 
+non-NULL：如果创建事件组成功，那么将返回一个非空值，这个返回的非空值将被存储为EventGroupHandle_t类型的变量中，用作所创建事件组的句柄。
+
+##### 8.2.1 xEventGroupSetBits() API函数
+
+xEventGroupSetBits() API函数可以设置事件组中的一个或多个位，经常用于通知任务那些被设置的位所代表的事件已经发生了。其函数原型如下图所示：
+
+**注意**：在中断服务程序中绝不能调用xEventGroupSetBits()函数，应该使用中断安全版本的xEventGroupSetBitsFromISR()。
+
+![image-20201013203641961](illustration/image-20201013203641961.png)
+
+**参数**
+
+xEventGroup：将要被设置位的事件组句柄。这个句柄是调用xEventGroupCreate()函数创建事件组时返回的值。
+
+uxBitsToSet：指定一个或者多个事件位的位掩码，用于将事件组的某些位置1。使用uxBitsToSet的值与事件组原来的值做位与运算改变事件组的值。
+
+比如说，uxBitsToSet的值为0x04（0100），这将会使是第三事件位置1（如果原来为0），其他的事件位保持不变。
+
+**返回值**
+
+调用xEventGroupSetBits()函数结束时事件组的值。注意，这个返回值可能不一定设置了uxBitsToSet指定的位，因为在其他的任务中可能清除了其中的某些位。
+
+##### 8.2.3 xEventGroupSetBitsFromISR() API函数
+
+xEventGroupSetBitsFromISR()函数是中断安全版的xEventGroupSetBits()函数。
 
 

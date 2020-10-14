@@ -93,6 +93,8 @@ sizeof(word);
 
 
 
+##### 1.16 volatile
+
 
 
 
