@@ -1760,7 +1760,7 @@ NULL：如果返回NULL，则由于没有足够的内存可以供FreeRTOS分配�
 
 non-NULL：如果创建事件组成功，那么将返回一个非空值，这个返回的非空值将被存储为EventGroupHandle_t类型的变量中，用作所创建事件组的句柄。
 
-##### 8.2.1 xEventGroupSetBits() API函数
+##### 8.2.2 xEventGroupSetBits() API函数
 
 xEventGroupSetBits() API函数可以设置事件组中的一个或多个位，经常用于通知任务那些被设置的位所代表的事件已经发生了。其函数原型如下图所示：
 
@@ -1783,5 +1783,82 @@ uxBitsToSet：指定一个或者多个事件位的位掩码，用于将事件组
 ##### 8.2.3 xEventGroupSetBitsFromISR() API函数
 
 xEventGroupSetBitsFromISR()函数是中断安全版的xEventGroupSetBits()函数。
+
+释放一个信号量是一个确定性的操作，因为它可以预先知道释放该信号量最多可以使一个任务离开阻塞状态。当将一个事件组的某些位置1时，不能够预先知道有多少任务因此退出阻塞状态，所以将事件组中的某些位置1这个操作具有不确定性。
+
+FreeRTOS的设计和实现准则是不允许在中断服务程序中或当中断被禁用时执行具有不确定性的操作（非确定性操作）。因此，xEventGroupSetBitsFromISR()函数不直接在中断服务程序内设置事件位，而是将设置操作递延到RTOS的守护进程任务中。xEventGroupSetBitsFromISR()函数原型如下图所示：
+
+![image-20201017164620588](illustration/image-20201017164620588.png)
+
+**参数**
+
+**xEventGroup**：需要被设置事件位的事件组句柄。这个事件组句柄是调用xEventGroupCreate()函数创建事件组时返回值。
+
+**uxBitsToSet**：指定事件组中将要被设置为1的一个或多个事件位的位掩码。事件组的值通过uxBitsToSet参数与当前事件组的值进行按位或操作进行更新。
+
+**pxHigherPriorityTaskWoken**：xEventGroupSetBitsFromISR()函数不会直接在中断服务程序设置事件位，而是将设置事件位的操作通过发送命令到定时器命令队列递延到RTOS的守护进程任务中。如果守护进程任务因等待定时器命令队列变成可获取状态而处于阻塞状态，那么向定时器命令队列写入命令将使守护进程任务退出阻塞状态。如果守护进程任务的优先级高于当前正在运行的任务（即被中断的任务），那么在xEventGroupSetBitsFromISR()函数内将设置*pxHigherPriorityTaskWoken参数位pdTRUE。
+
+**如果在xEventGroupSetBitsFromISR()函数中设置pxHigherPriorityTaskWoken参数位pdTRUE，那么在中断退出之前应该执行上下文切换。这保证了中断直接返回到守护进程任务，因为守护进程任务是当前就绪态中优先级最高的任务。**
+
+**返回值**
+
+**pdPASS**：如果成功将数据发送到定时器命令队列将会返回pdPASS。
+
+**pdFALSE**：如果设置位“set bits”命令因为队列已满而不能够写入到定时器命令队列时返回pdFALSE。
+
+##### 8.2.4 xEventGroupWaitBits() API函数
+
+xEventGroupWaitBits() API函数可以使任务读取事件组的值，并且可以选择等待事件组中的一个或多个事件位被设置而进入阻塞态，如果它等待被设置的那些位还没有被设置。其函数原型位：
+
+![image-20201017172842982](illustration/image-20201017172842982.png)
+
+调度器通过一个被叫做“unblock condition”的条件判断一个任务是否要进入阻塞态，以及何时退出阻塞态。这个unblock condition通过uxBitsToWaitFor和xWaitForAllBits两个参数值的组合来给定。：
+
+- uxBitsToWaitFor参数指定要测试事件组中的哪些事件位。
+- xWaitForAllBits参数指定是否使用按位或测试，或按位与测试。
+
+如果在调用xEventGroupWaitBits()函数时满足unblock condition，那么任务将不会进入阻塞状态。
+
+调用该函数的任务使用uxBitsToWaitFor参数指定要等待的事件位，该任务可能需要在满足unblock condition条件之后将这些位清除回零。使用xEventGroupClearBits() API函数可以清除事件位，但是在应用程序代码中使用这个函数手动清除事件位会导致**竟态条件**，如果：
+
+- 有多个任务使用同一个事件组。
+- 事件组中的位在一个不同的任务或在中断服务程序中被设置。
+
+使用xClearOnExit参数可以避免潜在的race conditions的放生。如果设置xClearOnExit为pdTRUE那么测试和清除调用任务中出现的事件位是原子任务“atomic operation”（不可以被其他任务或中断中断的操作）。
+
+**参数**
+
+**xEventGroup**：事件组句柄，包含了要被读取的事件位。
+
+**uxBitsToWaitFor**：指定事件组中要等待的事件位的位掩码。
+
+**xClearOnExit**：如果调用函数的unblock condition达到了，且xClearOnExit参数设置为pdTRUE，那么由uxBitsToWaitFor参数指定的事件位将在调用任务退出xEventGroupWaitBits() API函数之前清除回零。如果xClearOnExit参数设置为pdFALSE，那么事件组中的事件位在xEventGroupWaitsBits() API函数中将不会被改变。
+
+**xWaitForAllBits**：uxBitsToWaitFor参数指定要在事件组中等待的事件位。xWaitForAllBits不同的取值决定了什么情况下任务可以退出阻塞态。
+
+- pdFALSE：当达到uxBitsToWaitFor参数指定的事件位中的**任一**位时，（或阻塞时间到期）即可退出阻塞态。
+- pdTRUE：当达到uxBitsToWaitFor参数指定的事件位中的**所有**位时，（或阻塞时间到期）即可退出阻塞态。
+
+**xTicksToWait**：xTicksToWait参数指定了任务在等待达到unblock condition时，处于阻塞状态的最大时间。如果xTicksToWait参数设置为0或者unblock condition在调用xEventGroupWaitBits()函数时就达到了，函数将回立即返回。
+
+**返回值**
+
+**事件组的值**
+
+- 如果调用xEventGroupWaitBits()函数的任务达到了unblock condition，那么将返回达到unblock condition时事件组的值（如果xClearOnExit是pdTRUE，则是未清除回零的值）。在这种情况下，返回值也是符合unblock condition的。
+- 如果调用xEventGroupWaitBits()函数的任务因等待unblock condition达到时间超时而返回，那么返回值是xTicksToWait参数指定的时间耗尽之后事件组的值。在这种情况下，返回值不会符合unblock condition。
+
+列22略。
+
+P306
+
+
+
+
+
+
+
+
+
 
 
