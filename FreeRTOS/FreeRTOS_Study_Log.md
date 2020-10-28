@@ -2025,11 +2025,55 @@ notification value：返回值是调用任务的通知值在被清除归0或减1
 
 例24，25，略。
 
-P332
+##### 9.2.3 xTaskNotify() & xTaskNotifyFromISR() API函数
 
+xTaskNotify()函数是xTaskNotifyGive()函数更强大的版本，xTaskNotify()函数可以在以下任意方法中更新接收任务的通知值：
 
+- 增加（+1）接收任务的通知值，在这种情况下xTaskNotify()同xTaskNotifyGive()函数作用相同。
+- 设置接收任务通知值的一个或者多位。这使得任务的通知值可以被用来作为事件组的一个轻量且快速的替代品。
+- 向接收任务的通知值写入一个新的数值，但是仅在接收任务自上次更新之后已读取其通知值。这使得通知值提供了一个类似长度为1的队列提供的功能。
+- 向接收任务的通知值写入一个新的数值，即使接收任务通知值自上次更新之后还没有被任务读取。这使得任务通知值提供了一个类似于xQueueOverwrite() API函数的功能。这种行为有时可以称之为邮箱“mailbox”。
 
+xTaskNotify()相比于xTaskNotifyGive()更灵活、强大，正因它额外的灵活性和功能，它的使用也相对比较复杂。
 
+xTaskNotifyFromISR()是可以在中断服务程序中使用的xTaskNotify()版本，所以它有一个多的pxHigherPriorityTaskWoken参数。
+
+如果任务的通知状态还没有pending，那么调用xTaskNotify()函数总会将接收任务的通知状态设置为pending。两个函数的函数原型如下图所示：
+
+![image-20201028194553499](illustration/image-20201028194553499.png)
+
+**参数**
+
+xTaskToNotify：通知要被发送到的任务句柄。
+
+ulValue：ulValue参数如何使用取决于eNotifyAction参数的值。
+
+eNotifyAction：一个枚举类型的值，它指定了如何更新接收任务的通知值。
+
+**返回值**
+
+pdPASS：除了下表中的那一种情况下都将返回pdPASS。
+
+eSetValueWithOverwrite：无论在调用xTaskNotify()之前接收任务的接收状态是否为pending，接收任务的通知值都将被设置为xTaskNotify()中传入的ulValue参数。
+
+|    eNotifyAction value    | Resultant Effect on Receiving Task                           |
+| :-----------------------: | :----------------------------------------------------------- |
+|         eNoAction         | 只将接收任务的通知状态设置为pending，不更新其通知值，ulValue参数将不使用。eNoAction使得任务通知可以被用作一个轻量且快速的二元信号量的替代方法。 |
+|         eSetBits          | 接收任务的通知值将与xTaskNotify()函数中传入的ulValue参数做按位或运算。例如，ulValue参数值为0x01，那么接收任务的通知值的bit0将被设置为1。再如，ulValue参数为0x06(0110)，那么接收任务的通知值的bit1和bit2将被设置为1。eSetBits操作使得任务通知可以被用作一个更快且轻量的事件组替代品。 |
+|        eIncrement         | 接收任务的通知值将被增加。vTaskNotify()函数的ulValue参数未使用。eIncrement操作使得任务通知值可以被用来作为二元或计数信号量的一个快速且轻量化的替代，此时xTaskNotify()函数等效于xTaskNotifyGive() API函数 |
+| eSetValueWithoutOverwrite | 如果接收任务在调用xTaskNotify()函数之前其状态已经是pending，那么xTaskNotify()函数将不做任务操作并返回pdFAIL。如果接收任务在调用xTaskNotify()函数之前其状态不是pending，那么接收任务的通知值将被设置为xTaskNotify()函数中传入的ulValue参数值。 |
+
+##### 9.2.4 xTaskNotifyWait() API函数
+
+xTaskNotifyWait()函数是功能更强的ulTaskNotifyTake()函数版本。在任务的通知状态没有pending的情况下，它使得任务可以选择一个超时时间去等待调用xTaskNotifyWait()函数的任务通知状态变为pending。xTaskNotifyWait()函数提供了在进入函数和退出函数时调用任务的通知值中要清除的位的选项。其函数原型如下所示：
+
+![image-20201028212740912](illustration/image-20201028212740912.png)
+
+**参数**
+
+ulBitsToClearOnEntry：如果调用任务在调用xTaskNotifyWait()函数之前没有一个通知pending，那么在ulBitsToClearOnEntry参数中设置的位将在进入函数时清除任务的通知值。例如，如果ulBitsToClearOnEntry设置位0x01，那么任务的通知值的bit0将被清除归0。如果将其设置为0xffffffff（ULONG_MAX）,将会把调用任务的通知值的所有位清除归0。
+
+ulBitsToClearOnExit：P338
 
 
 
