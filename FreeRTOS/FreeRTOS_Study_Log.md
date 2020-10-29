@@ -2071,9 +2071,47 @@ xTaskNotifyWait()函数是功能更强的ulTaskNotifyTake()函数版本。在任
 
 **参数**
 
-ulBitsToClearOnEntry：如果调用任务在调用xTaskNotifyWait()函数之前没有一个通知pending，那么在ulBitsToClearOnEntry参数中设置的位将在进入函数时清除任务的通知值。例如，如果ulBitsToClearOnEntry设置位0x01，那么任务的通知值的bit0将被清除归0。如果将其设置为0xffffffff（ULONG_MAX）,将会把调用任务的通知值的所有位清除归0。
+**ulBitsToClearOnEntry**：如果调用任务在调用xTaskNotifyWait()函数之前没有一个通知pending，那么在ulBitsToClearOnEntry参数中设置的位将在进入函数时清除任务的通知值。例如，如果ulBitsToClearOnEntry设置位0x01，那么任务的通知值的bit0将被清除归0。如果将其设置为0xffffffff（ULONG_MAX）,将会把调用任务的通知值的所有位清除归0。
 
-ulBitsToClearOnExit：P338
+**ulBitsToClearOnExit**：如果调用任务收到一个通知而退出xTaskNotifyWait()函数，或者在调用xTaskNotifyWait()函数之前它已经接收了一个任务通知，那么ulBitsToClearOnExit参数指定的任何位在任务退出xTaskNotifyWait()函数之前都会在其通知值中进行清除归0。例如，给定ulBitsToClearOnExit参数0x03，那么任务的通知值的bit0和bit1将值函数退出之前被清除归0。若设置其位0xffffffff(ULONG_MAX)，将会清除任务通知值的所有位。
+
+**pulNotificationValue**：用来输出任务通知值。*pulNotificationValue参数的值是任务通知值在ulBitsToClearOnExit参数设置的位被清除之前的值。pulNotificationValue是一个可选的参数，如果不需要的话可以将其设置为NULL。
+
+**xTickToWait**：调用任务进入阻塞态等待通知状态变为pending的最大时间。
+
+**返回值**
+
+pdTRUE：当接收到任务通知，或任务调用xTaskNjotifyWait()函数时已经有一个通知pending时返回pdTRUE。如果指定了等待时间（xTickToWait不是0），可能时在等待时间耗尽之前收到了任务通知。
+
+pdFALSE：调用任务没有收到任务通知。如果xTickToWait参数不为0，可能是在等待时间耗尽时还没有接收到任务通知。
+
+UART Example.略
+
+P340
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
