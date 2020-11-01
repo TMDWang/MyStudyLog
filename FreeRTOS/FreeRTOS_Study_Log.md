@@ -2073,7 +2073,7 @@ xTaskNotifyWait()函数是功能更强的ulTaskNotifyTake()函数版本。在任
 
 ulBitsToClearOnEntry：如果调用任务在调用xTaskNotifyWait()函数之前没有一个通知pending，那么在ulBitsToClearOnEntry参数中设置的位将在进入函数时清除任务的通知值。例如，如果ulBitsToClearOnEntry设置位0x01，那么任务的通知值的bit0将被清除归0。如果将其设置为0xffffffff（ULONG_MAX）,将会把调用任务的通知值的所有位清除归0。
 
-ulBitsToClearOnExit：P338
+ulBitsToClearOnExit：
 
 
 
