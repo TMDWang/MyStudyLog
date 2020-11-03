@@ -2117,13 +2117,62 @@ UART Example.略
 - xUART结构体的xTxSemaphore成员被替换为了xTaskToNotify成员。它是一个TaskHandle_t类型的变量，用来保存等待UART操作结束的任务的句柄。
 - xTaskGetCurrentTaskHandle() API函数用来获取当前处于运行态任务的句柄。
 - 该库不创建任何FreeRTOS对象，因此不需要RAM占用，也不需要显式地初始化。
-- 任务通知会直接发送到等待UART操作完成的任务中，所以没有必要的逻辑被执行。
+- 任务通知会直接发送到等待UART操作完成的任务中x，所以没有必要的逻辑被执行。
 
 xUART结构体的xTaskToNotify成员会从一个任务和一个中断服务程序中访问，因此需要考虑处理器将如何更新它的值。
 
-P343
+- 如果xTaskToNotify通过单一的写内存操作更新，那么这个参数可以在一个临界区外进行更新，就像Listing155中所示。这种情况一般发生在xTaskToNotify是一个32位的变量（TaskHandle_t是32位类型），并且运行FreeRTOS系统的处理器是32位处理器。
+- 如果更新xTaskToNotify需要超过一次的写内存操作，那么xTaskToNotify必须在一个临界区内进行更新-要不然中断服务程序可能会在它前后不一致的状态下访问它。这种情况可能是xTaskToNotify是一个32位的变量，但是运行FreeRTOS系统的处理器是16位的，因此需要两个写16位内存操作才能更新一个32位的变量。
+
+在FreeRTOS系统实现的内部，TaskHandle_t是一个指针，其占内存大小sizeof(TaskHandle_t) == sizeof(void *)。
 
 ![image-20201101192343662](illustration/image-20201101192343662.png)
+
+P345
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
