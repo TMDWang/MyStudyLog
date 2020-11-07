@@ -2128,11 +2128,16 @@ xUART结构体的xTaskToNotify成员会从一个任务和一个中断服务程�
 
 ![image-20201101192343662](illustration/image-20201101192343662.png)
 
-P345
+在接收任务中也可以使用任务通知替代信号量，正如下图伪代码Listing156中展示的那样，Listing156提供了一个从UART口接收数据的RTOS库函数框架。从Listing156中可以看出：
 
+- xUART_Receive()函数内不包含任何互斥逻辑。如果有多个任务需要使用xUART_Receive()函数，那么应用开发者必须在应用中管理互斥的情况。例如，任务在调用xUART_Receive()函数之前要求其先获得互斥锁。
+- UART的中断服务程序将从UART口接收的字符放入RAM缓存中。xUART_Receive()函数则从RAM缓存中返回这些字符。
+- xUART_Receive()函数的uxWantedBytes参数用来指定想要接收字符的数量。如果在RAM缓存中没有需要的那么多数据，那么调用这个函数的任务将进入阻塞态等待缓存中的字符数量达到所要求的通知。其中while()用于重复这个等待操作，直到缓存中接收到了指定数量的字符或者时间超时。
+- 调用该函数的任务可能会多次进入阻塞状态。因此这个阻塞时间的调整需要考虑从调用xUART_Receive()函数到当前已经过去的时间。时间调整是为了确保在xUART_Receive()函数内花费的时间不能超过xUART结构体中xRxTimeout成员参数所指定的阻塞时间。这个阻塞时间可以使用TreeRTOS提供的vTaskSetTimeOutState()和xTaskCheckForTimeOut()函数来辅助调整。
 
+![image-20201106163351811](illustration/image-20201106163351811.png)
 
-
+P347
 
 
 
