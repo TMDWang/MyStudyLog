@@ -2197,17 +2197,28 @@ Listing162展示的是一个简化的场景，它假设SetCloudData()函数不�
 
 ### 11 开发者支持
 
-P356
+#### 11.1 configASSERT()
 
+在C语言中，assert()宏被用来验证在程序中做的断言（一个假设）。这个断言是一个C表达式，如果这个表达式等于false（0），那么这个断言将被认为是失败的。例如下面的一个断言，指针pxMyPointer不是NULL。
 
+```
+/* Test the assertion that pxMyPointer is not NULL */
+assert(pxMyPointer != NULL);
+```
 
+如果一个断言通过提供的assert()宏的实现判定为fails，应用开发者指定要执行的动作。
 
+FreeRTOS源代码中不调用assert()，因为编译FreeRTOS的编译器不都支持assert()。因此，在FreeRTOS的源代码中包含了很多宏的调用，被叫做configASSERT()，应用开发者可以在FreeRTOSConfig.h文件中定义它，configASSERT()的行为跟标准C语言中的assert()很相似。
 
+一个失败的断言必须被看作是一个致命的错误。不要试图执行断言失败行的后面。
 
+使用configASSERT()可以提高生产效率，通过使用它可以立即捕获并识别许多错误最开始的错误源头。强烈建议您在开发或者调试FreeRTOS应用时定义configASSERT()。
 
+定义configASSERT()会强化运行时的调试，但这也将增加应用的代码量，因此将拖慢代码的执行。如果没有提供configASSERT()的定义，那么将使用默认的空定义，这将使得所有的configASSERT()调用都被C预编译器完全清除。
 
+**configASSERT()定义的例子**
 
-
+P358
 
 
 
