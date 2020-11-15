@@ -2137,9 +2137,17 @@ xUART结构体的xTaskToNotify成员会从一个任务和一个中断服务程�
 
 ![image-20201106163351811](illustration/image-20201106163351811.png)
 
-P347
+**任务通知在外设驱动的使用之ADC**
 
+前面的章节展示了使用vTaskNotifyGiveFromISR()函数从中断发送任务通知到任务。vTaskNotifyGiveFromISR()函数易于使用，但其功能也有限；它只能以一个无价值事件（valueless event）的形式发送任务通知，而不能发送数据。本节则介绍如何使用xTaskNotifyFromISR()函数发送一个带有数据的任务通知事件。其使用技巧将通过Listing157中的伪代码展示，这段代码提供了在模数转换器中使用RTOS中断服务程序的框架。在Listing157中：
 
+- 假设ADC转换至少每50ms启动一次。
+- ADC_ConversionEndISR()是ADC转换结束中断的中断服务程序，这个中断在每当有一个新的ADC值可获取的时候被执行。
+- vADCTask()函数实现的任务处理ADC生成的每一个值。假设这个任务的句柄在其创建时就被存储到xADCTaskToNotify中。
+- ADC_ConversionEndISR()函数使用xTaskNotifyFromISR()函数发送任务通知到vADCTask()任务，其eAction参数值为eSetValueWithoutOverwrite，并且把ADC转换的结果写入到任务通知值。
+- vADCTask()任务使用xTaskNotifyWait()函数等待一个新ADC值可以被获取的通知，也可以从它的通知值中检索ADC转换的结果。
+
+![image-20201108191146101](illustration/image-20201108191146101.png)
 
 
 
