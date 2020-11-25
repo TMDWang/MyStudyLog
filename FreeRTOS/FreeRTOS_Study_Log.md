@@ -2216,13 +2216,19 @@ FreeRTOS源代码中不调用assert()，因为编译FreeRTOS的编译器不都�
 
 定义configASSERT()会强化运行时的调试，但这也将增加应用的代码量，因此将拖慢代码的执行。如果没有提供configASSERT()的定义，那么将使用默认的空定义，这将使得所有的configASSERT()调用都被C预编译器完全清除。
 
-**configASSERT()定义的例子**
+**定义configASSERT()的例子**
 
-P358
+configASSERT()的定义如下图Listing164所示，当一个应用在调试器的控制下运行时非常有用。它会在任一发生断言失败的地方停止执行，因此在调试会话暂停时，调试器显示的行就是断言失败的地方。
 
+![image-20201125115501160](illustration/image-20201125115501160.png)
 
+下图Listing165中定义的configASSERT()在一个应用不在调试器的控制下执行时非常有用。它会打印或者记录断言失败的源代码所在行。使用标准C语言中的\_\_FILE\_\_宏获取源文件名，使用\_\_LINE\_\_宏获取该源文件中发生断言失败的所在行。
 
+![image-20201125120235905](illustration/image-20201125120235905.png)
 
+#### 11.2 Free RTOS + Trace
+
+P359
 
 
 
