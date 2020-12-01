@@ -2296,16 +2296,16 @@ uxTaskGetSystemState()可以获取在FreeRTOS调度器控制下得每一个任�
 
 ![image-20201201205710411](illustration/image-20201201205710411.png)
 
-| **成员**             | 描述 |
-| -------------------- | ---- |
-| xHandle              |      |
-| pcTaskName           |      |
-| xTaskNumber          |      |
-| eCurrentState        |      |
-| uxCurrentPriority    |      |
-| uxBasePriority       |      |
-| ulRunTimeCounter     |      |
-| usStackHighWaterMark |      |
+| **成员**             | 描述                            |
+| -------------------- | ------------------------------- |
+| xHandle              | 结构体中与信息相关任务的句柄    |
+| pcTaskName           | 可读的任务名字                  |
+| xTaskNumber          | 每个任务都有唯一的xTaskNumber值 |
+| eCurrentState        |                                 |
+| uxCurrentPriority    |                                 |
+| uxBasePriority       |                                 |
+| ulRunTimeCounter     |                                 |
+| usStackHighWaterMark |                                 |
 
 
 
