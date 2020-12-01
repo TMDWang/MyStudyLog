@@ -2252,17 +2252,60 @@ P359
 
 **运行时间统计时钟**
 
+运行时间统计需要测量滴答周期片数。因此，RTOS滴答计数不用做运行时间统计时钟，这个时钟将由应用代码提供。运行时间统计时钟的频率推荐在滴答中断频率的10-100倍之间。运行时间统计时钟越快，统计数据将越准确，同样时间值将溢出的更快。
 
+理想情况下，时间值由一个自由运行的32位外部定时器/计数器产生，不需要其他处理开销就可以读取它的值。如果这个外设和时钟速率不能满足上述情况，那么可替代的影响很小的方法有：
 
+1. 配置一个以期望运行时间统计时钟频率的外设周期产生中断，然后使用生成的中断数作为运行时间统计时钟。
 
+如果这个周期中断仅仅用来提供一个运行时间统计时钟将是很浪费的方法。然而，如果应用已经使用了一个频率合适的周期中断，那么将生成的中断数的计数添加到现有的中断服务程序中是简单而有效的。
 
+2. 使用自由运行的16位外部定时器的当前值作为32位数值的低16位，将定时器的溢出次数作为32位数值的高16位，依次来产生32位的数值。
 
+这是可以实现的，使用适当的、稍微复杂的操作，结合RTOS时钟计数与ARM Cortex-M 系统时钟定时器产生一个运行时间统计时钟。在下载的FreeRTOS项目的一个实例中就展示了如何实现上述操作。
 
+**配置应用收集运行时间统计**
 
+下表详述了采集任务运行时间统计必要使用的宏。这些宏原本是用来包含在RTOS的port层的，这也是为什么这些宏的前缀是‘port’，但是事实证明在FreeRTOSConfig.h中定义它们更实际。
 
+| 宏                                                           | 解释                                                         |
+| :----------------------------------------------------------- | ------------------------------------------------------------ |
+| configGENERATE_RUN_TIME_STATS                                | 在FreeRTOSConfig.h文件中必须将这个宏设置为1。当这个宏被设置为1时，调度器将在合适的时候调用这个表格中详述的其他宏。 |
+| portCONFIGURE_TIMER_FOR_RUN_TIME_STATE()                     | 不管使用哪一个外设提供运行时间统计时钟，这个宏必须提供初始化。 |
+| portGET_RUN_TIME_COUNTER_VALUE(), or portALT_GET_RUN_TIME_COUNTER_VALUE(Time) | 这两个宏必须有一个提供返回当前运行时间统计时钟值得功能。这个值是自应用第一次启动后应用已经运行得总时间，单位是一个运行时间统计时钟。如果使用第一个宏，那么必须定义它才能计算当前时钟值。如果使用第二个宏，那么必须定义它才能设置其Time参数获取当前时钟值。 |
 
+**uxTaskGetSystemState() API函数**
 
+uxTaskGetSystemState()可以获取在FreeRTOS调度器控制下得每一个任务的状态信息简照。使用一个TaskStatus_t结构体的数组来提供获取到的信息，在数组中每个任务对应一个索引。uxTaskGetSystemState()函数原型及TaskStatus_t结构体如下图、表所示。
 
+![image-20201201205607336](illustration/image-20201201205607336.png)
+
+**参数**
+
+**pxTaskStatusArray：**指向TaskStatus_t结构体数组的指针。在数组中包含了每个任务至少一个TaskStatus_t结构体。任务的数量可以使用uxTaskGetNumberOfTasks() API辅助函数获取。
+
+**uxArraySize：**被pxTaskStatusArray指针指向的数组尺寸。这个数组大小指的是数组中索引的数量（即数组中包含的TaskStatus_t结构体的数量），而不是数组所占用的字节数。
+
+**pulTotalRunTime：**如果在FreeRTOSConfig.h文件中将configGENERATE_RUN_TIME_STATS设置为1，那么*pulTotalRunTime的值在uxTaskGetSystemState()函数中被设置为自系统启动之后的总运行时间（由应用程序提供的运行时间统计时钟定义）。pulTotalRunTime参数是可选的，如果总运行时间是不需要的话可以将其设置为NULL。
+
+**返回值**
+
+返回值是uxTaskGetSystemState()函数填充的TaskStatus_t结构体的数量。
+
+返回值应等于uxTaskGetNumberOfTasks() API函数的返回值，但是如果uxArraySize参数给的太小，返回值将为0。
+
+![image-20201201205710411](illustration/image-20201201205710411.png)
+
+| **成员**             | 描述 |
+| -------------------- | ---- |
+| xHandle              |      |
+| pcTaskName           |      |
+| xTaskNumber          |      |
+| eCurrentState        |      |
+| uxCurrentPriority    |      |
+| uxBasePriority       |      |
+| ulRunTimeCounter     |      |
+| usStackHighWaterMark |      |
 
 
 
