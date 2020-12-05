@@ -2300,12 +2300,107 @@ uxTaskGetSystemState()可以获取在FreeRTOS调度器控制下得每一个任�
 | -------------------- | ------------------------------------------------------------ |
 | xHandle              | 结构体中与信息相关任务的句柄                                 |
 | pcTaskName           | 可读的任务名字                                               |
-| xTaskNumber          | 每个任务都有唯一的xTaskNumber值。如果在程序运行时创建或者删除任务，那么有可能创建的新任务的句柄与之前删除的任务句柄相同。xTaskNumber可以使应用代码和内核通知调试器， |
-| eCurrentState        |                                                              |
-| uxCurrentPriority    |                                                              |
-| uxBasePriority       |                                                              |
-| ulRunTimeCounter     |                                                              |
-| usStackHighWaterMark |                                                              |
+| xTaskNumber          | 每个任务都有唯一的xTaskNumber值。如果在程序运行时创建或者删除任务，那么有可能创建的新任务的句柄与之前删除的任务句柄相同。xTaskNumber可以使应用代码和内核通知调试器，区分当前有效的任务和一个与当前任务具有相同句柄的已被删除的任务。 |
+| eCurrentState        | 这是一个枚举类型的变量，保存了当前任务的状态。它的元素有：eRunning,eReady,eBlocked,eSuspended,eDeleted。任务只有在调用vTaskDelete()函数删除它到空闲任务释放掉这个被删除任务分配的内部数据结构和堆栈所占用的内存这段时间，才能被上报为eDeleted状态。在这段时间之后，任务将不复存在，任何尝试使用其句柄的操作都是无效的。 |
+| uxCurrentPriority    | 在调用uxTaskGetSystemState()函数时任务的运行优先级。如果任务按照7.3章节Mutexes(and Binary Semaphores)描述的优先级继承机制，暂时的被分配了一个比应用开发者给定的高的优先级，只有这样uxCurrentPriority才会比应用开发人员给定的优先级高。 |
+| uxBasePriority       | 应用开发任务分配给任务的优先级。只有在FreeRTOSConfig.h文件中将configUSE_MUTEXES设置为1时，uxBasePriority才有效。 |
+| ulRunTimeCounter     | 自任务被创建以来，任务总的运行时间。总运行时间以绝对时间给出，使用应用开发者收集运行时间统计提供的时钟。只有在FreeRTOSConfig.h文件中将configGENERATE_RUN_TIME_STATES设置为1时ulRunTimeCounter才有效。 |
+| usStackHighWaterMark | 任务堆栈使用最多的时候。这个值是自任务被创建以来，任务堆栈空间剩余的最小值。他是任务使用的堆栈到达堆栈溢出有多近的指示；这个值越接近0，任务就越接近堆栈溢出的发生。usStackHighWaterMark的单位是字节。 |
+
+**vTaskList()辅助函数**
+
+vTaskList()函数的功能类似于uxTaskGetSystemState()，提供了任务的状态信息，不同之处在于它将信息以人类可读的ASCII表的方式呈现，而不是二进制数组。
+
+vTaskList()是一个非常占用处理器的函数，它会让调度器挂起一段较长的时间。依次，建议以调试为目的来使用这个函数，在实际系统运行时不要使用这个函数。
+
+只有将configUSE_TRACE_FACILITY和configUSE_STATS_FORMATTING_FUNCTIONS在FreeRTOSConfig.h文件中都设置为1时，vTaskList()函数才可用。它的函数原型如下图所示。
+
+![image-20201205144100208](illustration/image-20201205144100208.png)
+
+**参数：**
+
+pcWriteBuffer：一个指向字符缓冲区的指针，格式化的和人类可读的表被写入其中。因为没有进行边界检查，所以这几个缓存要足够大以容纳整个表。
+
+下图为调用vTaskList()函数产生的输出。
+
+![image-20201205144748292](illustration/image-20201205144748292.png)
+
+从图中的输出可以看出：
+
+- 每一行提供了一个任务的信息。
+- 第一列时任务的名字。
+- 第二列时任务的状态，其中R代表Ready，B代表Blocked，S代表Suspended，D代表这个任务被删除了。
+- 第三列表示任务的优先级。
+- 第四列是任务堆栈的high water mark。
+- 第五列是分配给任务的唯一的数。
+
+**vTaskGetRunTimeStats()辅助函数**
+
+vTaskGetRunTimeStats()函数将收集的运行时间统计信息格式化为人类可读的ASCII表。
+
+vTaskGetRunTimeStats()函数非常占用处理器，它会让调度器在很长一段时间内处于挂起状态。因此，建议只以调式目的使用这个函数，不要在实时生产系统中使用。
+
+只有将configGENERATE_RUN_TIME_STATS和configUSE_STATS_FORMATTING_FUNCTIONS在FreeRTOS.h文件中都设置为1时，vTaskGetRunTimeStats()函数才可用。其函数原型如下：
+
+![image-20201205150453211](illustration/image-20201205150453211.png)
+
+**参数：**
+
+pcWriteBuffer：一个指向字符缓冲区的指针，格式化的和人类可读的表被写入其中。缓冲取必须足够大，以容纳整个表，因为不执行边界检查。
+
+调用vTaskGetRunTimeStats()函数产生的输出表如下图所示：
+
+![image-20201205150936941](illustration/image-20201205150936941.png)
+
+从输出表中可以看出：
+
+- 每一行代表一个单独的任务
+- 第一列是任务的名字
+- 第二列是任务处于运行态的总时间的绝对值。
+- 第三列是自目标启动以来任务在运行状态中所花费的时间占总时间的百分比。表中展示的百分比时间和通常是小于100%的，因为时间的统计和计算都是使用整数计算的，整形是向下取最接近其的整型值。
+
+Example, 在一个正常的实例中产生并展示运行时间统计，略。P372
+
+#### 11.5 Trace 钩子宏
+
+Trace宏一般是放在FreeRTOS源代码关键点的宏。默认这个宏是空的，因此不引入任何代码，没有任何运行时间消耗。通过重写默认为空的实现，应用开发者可以：
+
+- 在不改变FreeRTOS源代码的情况下插入代码。
+- 以目标硬件上可用的任何方式输出详细的执行顺序信息。在FreeRTOS源代码中足够的地方插入Trace宏，使得它们创建一个完整而详细的调度器活动跟踪和分析日志。
+
+**可获得的Trace钩子宏**
+
+Trace宏太多，下表中例举并详述了对应用开发者最有用的一些宏。
+
+| Macro                                       | Description                                                  |
+| ------------------------------------------- | ------------------------------------------------------------ |
+| traceTASK_INCREMENT_TICK(xTickCount)        | 在滴答中断中增加完滴答计数之后调用。xTickCount参数将最新的滴答计数值传递给宏。 |
+| traceTASK_SWITCHED_OUT()                    | 在选择一个新任务运行之前调用。此时，pxCurrentTCB包含任务句柄的是将要离开运行态的任务的。 |
+| traceTASK_SWITCHED_IN()                     | 在已经选择了一个任务运行之后调用。此时，pxCurrentTCB包含的任务句柄是进入运行态的任务。 |
+| traceBLOCKING_ON_QUEUE_RECEIVE(pxQueue)     | 在当前正在执行的任务因为尝试读取一个空的队列或者获取一个已经被占用的信号量或互斥锁而进入阻塞态后立即调用。pxQueue参数传递目标队列或信号量或互斥锁的句柄到宏。 |
+| traceBLOCKING_ON_QUEUE_SEND(pxQueue)        | 当前正在执行的任务因为尝试写入数据到一个已经满的队列而进入阻塞态时立即调用该宏。pxQueue参数传递目标队列的句柄到宏。 |
+| traceQUEUE_SEND(pxQueue)                    | 当发送数据到队列或者释放信号量成功时，在xQueueSend(), xQueueSendToFront(), xQueueSendToBack()或者任何信号量的‘give’函数中调用。pxQueue参数传递目标队列或者信号量的句柄给宏。 |
+| traceQUEUE_SEND_FAILED(pxQueue)             | 当发送数据到队列或者释放信号量的操作失败时，在xQueueSend(),xQueueSendToFront(), xQueueSendToBack(),或者任一释放信号量函数中调用该宏。如果队列已满并且在指定的一段时间内一直都是满的状态，那么发送数据到队列或适当信号量的操作将失败。pxQueue参数传递目标队列或信号量的句柄到宏。 |
+| traceQUEUE_RECEIVE(pxQueue)                 | 当读取队列或者获取信号量成功时，在xQueueReceive()或任一信号量获取函数内调用该宏。pxQueue参数传递目标队列或者信号量到宏。 |
+| traceQUEUE_RECEIVE_FAILED(pxQueue)          | 当读队列或取信号量操作失败，在xQueueReceive()或任一获取信号量的函数中调用该宏。如果队列或者信号量为空并且在指定的阻塞时间内一直为空时，获取信号量或从队列中读取数据的操作将会失败。pxQueue参数传递目标队列或者信号量的句柄到宏。 |
+| traceQUEUE_SEND_FROM_ISR(pxQueue)           | 当发送操作成功，在xQueueSendFromISR()函数中调用。pxQueue参数传递目标队列句柄到宏。 |
+| traceQUEUE_SEND_FROM_ISR_FAILED(pxQueue)    | 当发送数据到队列的操作失败时，在xQueueSendFromISR()中调用。如果队列已经满，发送数据到队列的操作就会失败。pxQueue参数传递目标队列的句柄到宏。 |
+| traceQUEUE_RECEIVE_FROM_ISR(pxQueue)        | 当从队列中读取数据操作成功时，在xQueueReceiveFromISR()中调用。pxQueue参数传递目标队列的句柄到宏。 |
+| traceQUEUE_RECEIVE_FROM_ISR_FAILED(pxQueue) | 当从多列读取数据操作失败时（队列已空），在xQueueReceiveFromISR()函数中调用。pxQueue参数传递目标队列的句柄到宏。 |
+| traceTASK_DELAY_UNTIL()                     | 在调用任务进入阻塞态之前在vTaskDelayUntil()中立即调用。      |
+| traceTASK_DELAY()                           | 在调用任务进入阻塞态之前在vTaskDelay()函数中立即调用。       |
+
+**定义Trace钩子宏**
+
+P379
+
+
+
+
+
+
+
+
 
 
 
