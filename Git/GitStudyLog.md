@@ -38,7 +38,7 @@ git status -s/--short
 
 本地工作区、本地仓库到远程仓库的工作示意图：
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20200213161009663.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L1JlQ2NsYXk=,size_16,color_FFFFFF,t_70#pic_center)
+![在这里插入图片描述](illustration/本地-远程仓库示意图)
 
 #### 1.4 git add将修改添加到暂存
 
