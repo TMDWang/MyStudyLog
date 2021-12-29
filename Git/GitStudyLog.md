@@ -36,6 +36,10 @@ git status -s/--short
 
 ![image-20200724191626665](./illustration/image-20200724191626665.png)
 
+本地工作区、本地仓库到远程仓库的工作示意图：
+
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20200213161009663.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L1JlQ2NsYXk=,size_16,color_FFFFFF,t_70#pic_center)
+
 #### 1.4 git add将修改添加到暂存
 
 ```
@@ -69,7 +73,7 @@ git commit -v
 git commit -a  # 不推荐的用法
 ```
 
-加上-a选项，Git会自动把所有已跟踪过的文件中的执行修改或删除操作的文件暂存起来并提交，从而跳过git add步骤，这很方便，新加的文件是不能被提交到本地仓库的，建议一般不要使用-a参数，**强烈推荐git add将改动的文件添加到暂存区，再用git commit提交到本地版本库**。
+加上-a选项，Git会自动把所有已跟踪过的文件中的执行**修改或删除**操作的文件暂存起来并提交，从而跳过git add步骤，这很方便，新加的文件是不能被提交到本地仓库的，建议一般不要使用-a参数，**强烈推荐git add将改动的文件添加到暂存区，再用git commit提交到本地版本库**。
 
 #### 1.6 git rm移除文件 &  git mv移动文件（重命名？）
 
