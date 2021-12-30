@@ -1,10 +1,9 @@
 ##### 目录
 
-- book：存放学习以上内容的资料、文献。
-- Embedded：学习嵌入式笔记，包括C语言、FreeRTOS、Gcc。
-- Git：学习使用Git。
-- LinuxCentosServer：参考《菜鸟》学习Linux操作系统。
-- illustration：存放各目录下**.md文件中的插图。
+- ./Embedded：学习嵌入式笔记，包括C语言、FreeRTOS、Gcc。
+- ./Git：学习使用Git。
+- ./LinuxCentosServer：参考《菜鸟》学习Linux操作系统。
+- ./*/illustration：存放各目录下**.md文件中的插图。
 
 ##### 文件
 

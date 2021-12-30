@@ -638,6 +638,14 @@ doc/**/*.pdf	# 忽略doc/目录及其所有子目录下的.pdf文件
 
 简单的通配符列表（待补充）
 
+### 8 git bash设置
+
+#### 8.1 git status命令输出中文文件名
+
+```bash
+git config --global core.quotepath false
+```
+
 
 
 ## 二 分支
