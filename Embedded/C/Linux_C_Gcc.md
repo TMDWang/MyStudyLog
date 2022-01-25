@@ -50,4 +50,86 @@ int static(void)
 }
 ```
 
-#### 1.2 进程和线程
+#### 1.2 进程（process）和线程（thread）
+
+额。。。。。。
+
+
+
+### 2 Gcc使用手册
+
+GCC（GNU C Compiler）是编译工具，将C/C++等语言编写的程序转换成处理器能够执行的二进制代码的过程就是由编译器完成。
+
+**GCC包含一组二进制程序处理工具**：
+
+|   工具    | 作用                                                         |
+| :-------: | :----------------------------------------------------------- |
+| addr2line | 用来将程序地址转换成其所对应的程序源文件及对应的代码行，也可以得到所对应的函数。该工具将帮助调试器在调试的过程中定位对应的源代码位置 |
+|    as     | 主要用于汇编                                                 |
+|    ld     | 主要用于链接                                                 |
+|    ar     | 主要用于创建静态库                                           |
+|    ldd    | 可以用于查看一个可执行程序依赖的共享库                       |
+|  objcopy  | 将一种对象文件翻译成另一种格式，譬如将.bin转换成.elf、或将.elf转换成.bin |
+|  objdump  | 主要的作用是反汇编                                           |
+|  readelf  | 显示有关ELF文件的信息                                        |
+|   size    | 列出可执行文件每个部分的尺寸和总尺寸，代码段、数据段、总大小等 |
+
+**还包含C运行库**：
+
+C语言标准主要由两部分组成：一部分描述C的语法，另一部分描述C标准库。C标准库定义了一组标准头文件，每个头文件中包含一些相关的函数、变量、类型声明和宏定义，譬如常见的printf函数便是一个C标准库函数，其原型定义在stdio.h头文件中。
+
+C语言标准仅仅定义了C标准库函数的函数原型，并没有提供实现。因此，C语言编译器通常需要一个C运行时库（C Run Time Library, CRT）的支持。C运行时库又常简称为C运行库。与C语言类似，C++也定义了自己的标准，同时提供了相关支持库，成为C++运行时库。
+
+#### 2.1 Gcc入门
+
+先用常用的文本编辑器编辑一个简单的hello.c文件
+
+```c
+#include <stdio.h>
+
+int main(void)
+{
+    printf("Hello World!\n");
+    
+    return 0;
+}
+```
+
+实质上，GCC编译过程是分为四个阶段进行的，即**预处理**（也称预编译，Preprocessing）、**编译**（Compilation）、**汇编**（Assembly）和链接（Linking）。以hello.c文件为例，各个阶段的编译命令如下表所示。
+
+| 编译阶段 |         编译命令          | 作用                                 |
+| :------: | :-----------------------: | ------------------------------------ |
+|  预处理  | gcc -E hello.c -o hello.i | 编译器将源代码中包含的头文件编译进来 |
+|   编译   | gcc -S hello.i -o hello.s | 检查代码规范性并翻译成汇编语言       |
+|   汇编   | gcc -c hello.s -o hello.o | 将.s文件转换为目标文件               |
+|   链接   |   gcc hello.o -o hello    | 将目标文件转换为可执行文件           |
+
+
+
+### 3 ELF文件格式
+
+ELF为Executable and Linkable Format的简写。
+
+![ELF文件格式的两种视图](illustration/20160521110158483.png)
+
+
+
+###### ELF文件可以分为四个部分：
+
+1. ELF Header：描述整个文件的组织。
+2. Program Header Table：描述文件中的各种segments，用来告诉系统如何创建进程映像。
+3. sections/segments：segments是从运行的角度来描述elf文件，sections是从链接的角度来描述elf文件。也就是说，在链接阶段，我们可以忽略program header table来处理此文件，在运行阶段可以忽略section header table来处理此程序。从上图中也可以看出，segments与sections是包含关系，一个segments可以包含若干sections。
+4. Sections Header Table：包含了文件各个sections的属性信息。
+
+![链接视图和执行视图](illustration/20160521110434854.png)
+
+链接视图是以节（section）为单位，执行视图是以（segment）为单位。
+
+
+
+###### 3.1 进程映像
+
+
+
+
+
