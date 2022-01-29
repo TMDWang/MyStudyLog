@@ -214,7 +214,54 @@ Shell虽然没有C/C++、Java、Python等强大，但也支持了基本的变成
 
 ##### 5.1 几种常见的Shell
 
-#####  
+常见的Shell有sh、bash、csh、tcsh、ash等。
+
+- sh
+
+sh的全称是Bourne shell，由AT&T公司的Steve Bourne开发，为了纪念他，就用他的名字命名了。
+
+sh是UNIX上的标准shell，很多UNIX版本都配有sh。sh是第一个流行的Shell。
+
+- csh
+
+sh之后另一个广为流传的shell是由柏克莱大学的Bill Joy设计的，这个shell的语言有点类似C语言，所以才的名为C Shell，简称csh。
+
+- tcsh
+
+tcsh是csh的增强版，加入了命令补全功能，提供了更加强大的语法支持。
+
+- ash
+
+一个简单的轻量级的Shell，占用资源少，适合运行于低内存环境，但是与下面讲到的bash shell完全兼容。
+
+- bash
+
+bash shell是Linux的默认Shell，由GNU组织开发，保持了对sh shell的兼容性，是各种Linux发行版默认配置的Shell。
+
+bash兼容sh意味着，针对编写的Shell代码可以不加修改地在bash中运行。尽管如此，bash和sh还是有一些不同之处：
+
+1. bash扩展了一些命令和参数；
+2. bash并不完全兼容sh，它们有些行为并不一致，但在大多数企业运维的情况下区别不大，特殊场景可以使用bash代替sh。
+
+**查看Shell**
+
+Shell是一个程序，一般都是放在/bin或者/user/bin目录下，当前Linux系统可用的Shell都记录在/etc/shells文件中。/etc/shells是一个纯文本文件，可以打开这个文件查看当前Liunx系统支持的Shell。
+
+通过cat命令查看
+
+```shell
+cat /etc/shells
+```
+
+在现代的Linux上，sh已经被bash代替，/bin/sh往往是指向/bin/bash的符号链接。
+
+使用以下命令也可以看到当前系统默认的Shell
+
+```shell
+echo $SHELL
+```
+
+SEHLL是Linux系统中的环境变量，它指明了当前使用的Shell程序的位置，也就是使用的哪个Shell。
 
 #### 6 指令集架构、微架构
 
