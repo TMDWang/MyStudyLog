@@ -108,7 +108,7 @@ int main(void)
 
 ### 3 ELF文件格式
 
-ELF为Executable and Linkable Format的简写。
+ELF为Executable and Linkable Format的简写，即可执行可链接文件格式。目前常见的Linux、Android可执行文件、共享库（.so）、目标文件（.o）以及Core文件均为此格式。
 
 ![ELF文件格式的两种视图](illustration/20160521110158483.png)
 
@@ -117,7 +117,7 @@ ELF为Executable and Linkable Format的简写。
 ###### ELF文件可以分为四个部分：
 
 1. ELF Header：描述整个文件的组织。
-2. Program Header Table：描述文件中的各种segments，用来告诉系统如何创建进程映像。
+2. Program Header Table：描述文件中的各种segments，用来告诉系统如何创建**进程映像**。
 3. sections/segments：segments是从运行的角度来描述elf文件，sections是从链接的角度来描述elf文件。也就是说，在链接阶段，我们可以忽略program header table来处理此文件，在运行阶段可以忽略section header table来处理此程序。从上图中也可以看出，segments与sections是包含关系，一个segments可以包含若干sections。
 4. Sections Header Table：包含了文件各个sections的属性信息。
 
