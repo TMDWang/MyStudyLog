@@ -355,5 +355,5 @@ files := $(wildcard a/* b/* c/* d/*)
 c_src := $(shell ls *.c)
 ```
 
-[结果为：“1.c 2.c”。]()
+结果为：“1.c 2.c”。
 
