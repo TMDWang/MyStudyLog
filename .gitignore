@@ -1,2 +1,5 @@
 # 忽略book目录下的修改
 book/
+.DS_Store
+**/.DS_Store
+.Ds_Store?
