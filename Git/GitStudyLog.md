@@ -906,6 +906,128 @@ git merge experiment
 
 
 
+## 十 网上看到的Git教程
+
+### 10.1 Git配置git config
+
+**参考链接**：https://blog.csdn.net/HandsomeHong/article/details/120805196
+
+#### 10.1.1 git配置的不同优先级
+
+在git中，我们使用git config命令来配置git的配置文件，git配置级别主要有以下3类：
+
+1. 仓库级别local【优先级最高】
+2. 用户级别global【优先级次之】
+3. 系统级别system【优先级最低】
+
+**通常：**
+
+git长裤级别对应的配置文件是当前仓库下的.git/config【在当前目录下.git目录是默认隐藏的，所以在文件管理器中我们要打开显示隐藏的项目】。
+
+git用户级别对应的配置文件是用户宿主目录下的.gitconfig【比如，宿主目录：C:/Users/Admin/.gitconfig】。
+
+git系统级别对应的配置文件是git安装目录下的/etc/gitconfig
+
+#### 10.1.2 使用命令行查看各级配置
+
+我们可以在cmd命令提示符中输入以下命令查看配置信息：
+
+```shell
+git config --local -l  # 查看仓库配置级别配置，必须要进入到具体的仓库目录中使用
+
+git config --global -l  # 查看用户配置
+
+git config --system -l  # 查看系统配置
+
+git config -l  # 查看所有的配置信息，依次是系统级别、用户级别、仓库级别
+```
+
+可以使用下面的命令全面查看git的配置信息：
+
+```shell
+git config -l --show-origin --show-scope
+```
+
+![image-20230206200839541](illustration/image-20230206200839541.png)
+
+上面图中第一列显示变量的作用范围（级别），第二列显示变量来自哪个级别的配置文件，第三列就是变量值对。
+
+#### 10.1.3 git config常用配置选项
+
+使用以下命令可以打开git默认的编辑器编辑配置文件：
+
+```shell
+git config -e  # 编辑仓库级别配置文件
+
+git config --local -e  # 编辑仓库级别配置文件
+
+git config --global -e  # 编辑用户界别配置文件
+
+git config --system -e  # 编辑系统级别配置文件
+```
+
+也可以使用git config命令修改配置项目：
+
+```shell
+# 配置用户级别的用户邮箱
+git config --global user.email "you@example.com"
+# 配置用户级别的用户名
+git config --global user.name "You Name"
+```
+
+以上两条命令就修改了用户宿主目录下面的配置文件。
+
+**必要配置：**
+
+对于一个新的仓库，我们可以什么都不配置，但是一点要配置用户名和邮箱地址。
+
+#### 10.1.4 配置文件如何生效
+
+对于git来说，配置文件的权重是仓库>全局（用户）>系统。Git会使用这一系列的配置文件来存储你定义的偏好，它首先会查找/etc/gitconfig文件（系统级），该文件含有对系统上所有用户及他们所拥有的仓库都生效的配置值。接下来Git会查找每个用户的~/.gitconfig文件（全局级）。最后Git会查找由用户定义的各个库中Git目录下的配置文件.git/config（仓库级），该文件中的值只对当前所属仓库有效。
+
+（关于配置文件如何生效，曾看到过更易理解的说法，后面碰到再补充）
+
+#### 10.1.5 增加配置项
+
+参数：--add
+
+格式：
+
+```shell
+# 默认是添加在local配置中
+git config [ --local | --global | --system ] --add section.key value
+```
+
+**注意：**
+
+add后面的 section.key value 一项都不能少，否则添加失败。比如执行 git config -add cat.name tom
+
+#### 10.1.6 获取一个配置项信息
+
+如果不想查看所有配置的值，而只想查看某个配置项的值，可以使用参数 --get
+
+```shell
+# 默认获取local配置中的内容
+git config [ --local | --global | --system ] --get section.key
+```
+
+如果获取一个section不存在的key值，不会返回任何值
+
+如果获取一个不存在的section的key值，则会报错
+
+#### 10.1.7 删除一个配置项
+
+参数：--unset
+
+格式：
+
+```Shell
+# 默认删除local配置中的内容
+git config [ --local | --global | --system ] --unset section.key
+```
+
+
+
 ## 参考文献
 
 [1] Stormzhang,《从 0 开始学习 GitHub 系列》.
