@@ -1028,6 +1028,72 @@ git config [ --local | --global | --system ] --get section.key
 git config [ --local | --global | --system ] --unset section.key
 ```
 
+### 10.2 回滚提交git reset
+
+教程地址：https://blog.csdn.net/m0_58893670/article/details/125769798
+
+#### 10.2.1 还原还未做过git操作的文件（仅做了修改的文件）
+
+```shell
+git checkout -- <file>		# 还原文件file
+git checkout .				# 还原所有文件的改动
+```
+
+**以上命令使用之后文件的改动将消失。**
+
+#### 10.2.2 如果已经提交到暂存区，还未commit
+
+```shell
+git reset HEAD <file>		# 将文件恢复到未add状态，文件的更改还在
+git restore --staged <file>
+```
+
+使用以上命令之后，文件从暂存区恢复到未add状态，文件的更爱仍然存在。
+
+#### 10.2.3 如果已经commit
+
+```shell
+git reset HEAD^			# 回退到上一个版本，但修改内容保留
+git reset --hard HEAD^	# 回退到上一个版本，修改内容不保留
+```
+
+#### 10.2.4 已经提交到远程仓库的错误提交的修复和回退
+
+1、重置
+
+```shell
+git reset HEAD^
+```
+
+2、修改错误并重新commit
+
+```shell
+# 修改错误后
+git commit -m "注释"
+```
+
+3、强制上传
+
+```shell
+git push --force
+```
+
+#### 10.2.5 回滚到上一次提交的节点
+
+在代码提交完成之后，发现出了问题，需要回滚到上一次提交的节点。
+
+1、git log查看提交记录，找到最近一次提交，复制提交的信息码xxxxxx
+
+```shell
+git log		# 查看提交记录
+```
+
+2、回退
+
+```shell
+git reset --hard xxxxxx 	# 回滚到提交xxxxxx，不会保留修改
+```
+
 
 
 ## 参考文献
