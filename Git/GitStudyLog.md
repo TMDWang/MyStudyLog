@@ -118,7 +118,7 @@ git add file_to
 git log
 ```
 
-不传入任何参数的默认情况下，会按照时间先后顺序查看所有的commit记录，最近的更新在最上面。这个命令会列出每个提交的SHA-1校验和、作者的名字和邮箱地址、提交时间和提交说明，如下图所示。
+不传入任何参数的默认情况下，会按照时间先后顺序查看所有的commit记录，最近的更新在最上面。这个命令会列出每个提交的SHA-1校验和、作者名字、邮箱地址、提交时间和提交说明，如下图所示。
 
 ![image-20200726191534116](./illustration/image-20200726191534116.png)
 
@@ -206,7 +206,7 @@ checkout只能撤销还没有add进缓存区的文件。
 
 #### 1.9 git stash
 
-代码未完成之前一般不建议commit，会产生垃圾commit。当你正在一个新的分支上开发新的功能的时候，突然有一个紧急的bug需要修复，此时可以利用**stash**命令保存我们现在分支中的代码，让我们暂时切换到其他分支，修复完bug在切换回原来的分支。使用该命令的前提是没有进行commit，add代码也没关系。
+代码未完成之前一般不建议commit，会产生垃圾commit。当你正在一个新的分支上开发新的功能的时候，突然有一个紧急的bug需要修复，此时可以利用**stash**命令保存我们现在分支中的代码，让我们暂时切换到其他分支，修复完bug再切换回原来的分支。使用该命令的前提是没有进行commit，add代码也没关系。
 
 ```
 git stash
@@ -224,7 +224,7 @@ git stash list
 git stash apply
 ```
 
-回复执行git stash命令的分支。
+恢复执行git stash命令的分支。
 
 ```
 git stash drop
@@ -238,9 +238,11 @@ git stash pop
 
 该命令不仅将stash的代码恢复回来，还自动帮你删除了这条stash记录。确保万一，可以执行git stash list查看一下是否还有该次stash记录。
 
+```shell
 git stash clear
+```
 
-清空所有暂存区的记录，drop是只删除一条记录，后面加上stash_id可以删除指定的stash记录，不加参数就是删除最近的一条记录，clear是清空记录。
+清空所有暂存区的记录，drop是只删除一条记录，**后面加上stash_id可以删除指定的stash记录，不加参数就是删除最近的一条记录**，clear是清空记录。
 
 #### 1.10 git merge & git rebase
 
@@ -903,6 +905,194 @@ git merge experiment
 
 
 ## 九 Git内部原理
+
+
+
+## 十 网上看到的Git教程
+
+### 10.1 Git配置git config
+
+**参考链接**：https://blog.csdn.net/HandsomeHong/article/details/120805196
+
+#### 10.1.1 git配置的不同优先级
+
+在git中，我们使用git config命令来配置git的配置文件，git配置级别主要有以下3类：
+
+1. 仓库级别local【优先级最高】
+2. 用户级别global【优先级次之】
+3. 系统级别system【优先级最低】
+
+**通常：**
+
+git长裤级别对应的配置文件是当前仓库下的.git/config【在当前目录下.git目录是默认隐藏的，所以在文件管理器中我们要打开显示隐藏的项目】。
+
+git用户级别对应的配置文件是用户宿主目录下的.gitconfig【比如，宿主目录：C:/Users/Admin/.gitconfig】。
+
+git系统级别对应的配置文件是git安装目录下的/etc/gitconfig
+
+#### 10.1.2 使用命令行查看各级配置
+
+我们可以在cmd命令提示符中输入以下命令查看配置信息：
+
+```shell
+git config --local -l  # 查看仓库配置级别配置，必须要进入到具体的仓库目录中使用
+
+git config --global -l  # 查看用户配置
+
+git config --system -l  # 查看系统配置
+
+git config -l  # 查看所有的配置信息，依次是系统级别、用户级别、仓库级别
+```
+
+可以使用下面的命令全面查看git的配置信息：
+
+```shell
+git config -l --show-origin --show-scope
+```
+
+![image-20230206200839541](illustration/image-20230206200839541.png)
+
+上面图中第一列显示变量的作用范围（级别），第二列显示变量来自哪个级别的配置文件，第三列就是变量值对。
+
+#### 10.1.3 git config常用配置选项
+
+使用以下命令可以打开git默认的编辑器编辑配置文件：
+
+```shell
+git config -e  # 编辑仓库级别配置文件
+
+git config --local -e  # 编辑仓库级别配置文件
+
+git config --global -e  # 编辑用户界别配置文件
+
+git config --system -e  # 编辑系统级别配置文件
+```
+
+也可以使用git config命令修改配置项目：
+
+```shell
+# 配置用户级别的用户邮箱
+git config --global user.email "you@example.com"
+# 配置用户级别的用户名
+git config --global user.name "You Name"
+```
+
+以上两条命令就修改了用户宿主目录下面的配置文件。
+
+**必要配置：**
+
+对于一个新的仓库，我们可以什么都不配置，但是一点要配置用户名和邮箱地址。
+
+#### 10.1.4 配置文件如何生效
+
+对于git来说，配置文件的权重是仓库>全局（用户）>系统。Git会使用这一系列的配置文件来存储你定义的偏好，它首先会查找/etc/gitconfig文件（系统级），该文件含有对系统上所有用户及他们所拥有的仓库都生效的配置值。接下来Git会查找每个用户的~/.gitconfig文件（全局级）。最后Git会查找由用户定义的各个库中Git目录下的配置文件.git/config（仓库级），该文件中的值只对当前所属仓库有效。
+
+（关于配置文件如何生效，曾看到过更易理解的说法，后面碰到再补充）
+
+#### 10.1.5 增加配置项
+
+参数：--add
+
+格式：
+
+```shell
+# 默认是添加在local配置中
+git config [ --local | --global | --system ] --add section.key value
+```
+
+**注意：**
+
+add后面的 section.key value 一项都不能少，否则添加失败。比如执行 git config -add cat.name tom
+
+#### 10.1.6 获取一个配置项信息
+
+如果不想查看所有配置的值，而只想查看某个配置项的值，可以使用参数 --get
+
+```shell
+# 默认获取local配置中的内容
+git config [ --local | --global | --system ] --get section.key
+```
+
+如果获取一个section不存在的key值，不会返回任何值
+
+如果获取一个不存在的section的key值，则会报错
+
+#### 10.1.7 删除一个配置项
+
+参数：--unset
+
+格式：
+
+```Shell
+# 默认删除local配置中的内容
+git config [ --local | --global | --system ] --unset section.key
+```
+
+### 10.2 回滚提交git reset
+
+教程地址：https://blog.csdn.net/m0_58893670/article/details/125769798
+
+#### 10.2.1 还原还未做过git操作的文件（仅做了修改的文件）
+
+```shell
+git checkout -- <file>		# 还原文件file
+git checkout .				# 还原所有文件的改动
+```
+
+**以上命令使用之后文件的改动将消失。**
+
+#### 10.2.2 如果已经提交到暂存区，还未commit
+
+```shell
+git reset HEAD <file>		# 将文件恢复到未add状态，文件的更改还在
+git restore --staged <file>
+```
+
+使用以上命令之后，文件从暂存区恢复到未add状态，文件的更爱仍然存在。
+
+#### 10.2.3 如果已经commit
+
+```shell
+git reset HEAD^			# 回退到上一个版本，但修改内容保留
+git reset --hard HEAD^	# 回退到上一个版本，修改内容不保留
+```
+
+#### 10.2.4 已经提交到远程仓库的错误提交的修复和回退
+
+1、重置
+
+```shell
+git reset HEAD^
+```
+
+2、修改错误并重新commit
+
+```shell
+# 修改错误后
+git commit -m "注释"
+```
+
+3、强制上传
+
+```shell
+git push --force
+```
+
+#### 10.2.5 回滚到上一次提交的节点
+
+在代码提交完成之后，发现出了问题，需要回滚到上一次提交的节点。
+
+1、git log查看提交记录，找到最近一次提交，复制提交的信息码xxxxxx
+
+```shell
+git log		# 查看提交记录
+```
+
+2、回退
+
+```shell
+git reset --hard xxxxxx 	# 回滚到提交xxxxxx，不会保留修改
+```
 
 
 
