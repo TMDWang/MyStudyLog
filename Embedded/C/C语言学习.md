@@ -59,7 +59,7 @@ char *string = "Hello world!";
 
 \_\_attribute\_\_书写特征是：\_\_attribute\_\_前后都有<mark>两个下划线</mark>，并且后面会紧跟一对圆括号，括号里面是\_\_attribute\_\_参数。
 
-\_\_attribute\_\_语法格式为：\_\_attribute\_\_((attribute_list))。
+\_\_attribute\_\_语法格式为：\_\_attribute\_\_((attribute_list))。其位置约束为：放于声明的尾部“;”之前。
 
 关键字\_\_attribute\_\_也可以对结构体（struct）或共用体（union）进行属性设置。大概有一下6个参数：
 
@@ -67,7 +67,90 @@ aligned、packed、transparent_union、unused、deprecated、may_alias
 
 在使用\_\_attribute\_\_参数时，你也可以在参数的前后都加上“__”，例如使用“\_\_aligned\_\_”而不是“aligned”，这样你就可以在相应的头文件里使用它而不用关心头文件里是否有重名的宏定义。
 
+###### aligned（alignment）
+
+该属性设定一个指定大小的对齐格式（以字节为单位），例如：
+
+```C
+struct S{
+	short b[3];
+} __attribute__((aligned(8)));
+
+typedef int int32_t __attribute__((aligned(8)));
+```
+
+该声明将强制编译器确保（尽它所能）变量类型为struct S或者int32_t的变量在分配空间时采用8字节对齐方式。
+
+如上所述，你可以手动指定对齐的格式，同样，你也可以使用默认的对齐方式。如果aligned后面不紧跟一个指定的数字值，那么编译器将依据你的目标机器情况使用最大最优异的对齐方式。例如：
+
+```C
+struct S{
+	short b[3];
+} __attribute__((aligned));
+```
+
+这里，如果sizeof(short)的大小为2（byte）,那么，S的大小就是6。取一个2的次方值，使得该值大于等于6，则该值为8，所以编译器将设置S类型的对齐方式为8字节。
+
+**aligned属性使被设置的对象占用更多的空间，相反的，使用packed可以减少对象占用的空间。**
+
+需要注意的是，attribute属性的效力与你的连接器也有关，如果你的连接器最大只支持16字节对齐，那么你此时定义32字节对齐也是无济于事的。
+
+###### packed
+
+使用该属性对struct或者union类型进行定义，设定其类型的每一个变量的内存约束。当用在enum类型定义时，暗示了应该使用最小完整的类型。
+
+下面的例子中，packed_struct类型的变量数组中的值将会紧紧的靠在一起，但内部的成员变量s不会被pack，如果希望内部的成员变量也被packed的话，unpacked_struct也需要使用packed进行相应的约束。
+
+```C
+#include <stdio.h>
+struct unpacked_struct{
+	char c;
+	int i;
+} unpa_s;
+struct packed_struct{
+	char c;
+	int i;
+}__attribute__((__packed__)) pa_s;
+struct com_packed_struct{
+	char c;
+	int i;
+	struct unpacked_struct s;
+} __attribute__((__packed__)) complex_s;
+
+struct my_struct{
+ 	int i;
+	struct com_packed_struct com_s;
+	struct com_packed_struct com_s_2;
+}my_stru;
+
+int main()
+{
+   /*  Write C code in this online editor and run it. */
+   printf("Hello, World! \n");
+   printf("char size %d, int size %d\n", sizeof(char), sizeof(int));
+   printf("unpacked_struct size %d\n", sizeof(unpa_s));
+   printf("packed_struct size %d\n", sizeof(pa_s));
+   printf("complex_s size %d\n", sizeof(complex_s));
+   printf("my complex_s size %d\n", sizeof(my_stru));
+	
+   return 0;
+}
+```
+
+输出结果为：
+
+```C
+Hello, World! 
+char size 1, int size 4
+unpacked_struct size 8
+packed_struct size 5
+complex_s size 13
+my complex_s size 32
+```
+
 **函数属性（Function Attribute）**
+
+
 
 ##### 1.12 作用域
 
@@ -184,6 +267,31 @@ enum
 **<mark>大端模式</mark>**：指数据的**高字节**保存在内存的**低地址**中，而数据的低字节保存在内存的高地址中，这样的存储模式有点类似于把数据当作字符串顺序处理；地址由小向大增加，而数据从高位往低位放；这和我们的<mark>阅读习惯一致</mark>。
 
 **小端模式**：指数据的**高字节**保存在内存的**高地址**中，而数据的低字节保存在内存的低地址中，这中存储模式将地址的高低和数据位权有效地结合起来，高地址部分权值高，低地址部分权值低。
+
+##### 1.19 #include <>和#include “”区别
+
+在C语言中，#include指令用于将头文件包含到源文件中，以便在程序中使用头文件中定义的函数、变量和宏登。#include指令有两种形式：#include <> 和 #include ""，他们的区别如下：
+
+**#include <>**：这种形式的指令用于包含标准库头文件或者编译器指定的头文件。编译器会在标准库和编译器指定的目录中搜索指定的头文件。例如，#include <stdio.h>用于包含标准输入输出库的头文件stdio.h。
+
+**#include ""**：这种形式的指令用于包含用户自定义头文件。编译器会先在当前目录下搜索指定的头文件，如果没有找到，则会在标准库和编译器指定的目录中搜索。例如，#include "myheader.h"用于包含用户自定义的头文件myheader.h。
+
+需要注意的是，#include <>和#include ""的搜索路径是不同的。
+
+#include <>只搜索标准库和编译器指定的目录，而#include ""则先搜索当前源文件所在的目录，如果没有找到在搜索标准库和编译器指定的目录。因此，在编写程序时应根据需要选择合适的形式。
+
+另外，使用#include指令时，需要注意头文件的重复包含问题。如果一个头文件已经被包含了，再次包含会导致编译错误。为了避免这种情况，可以使用#ifdef、#define和#endif组合来定义头文件保护宏（Header Guard），日下所示：
+
+```c
+#ifndef MYHEADER_H
+#define MYHEADER_H
+
+/* 头文件内容 */
+
+#endif /* MYHEADER_H */
+```
+
+这样可以确保头文件只被包含一次。
 
 #### 2 指针
 
