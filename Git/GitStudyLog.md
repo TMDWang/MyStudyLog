@@ -576,7 +576,7 @@ git config --global alias.my_test_ssh "git@github.com:TMDWang/my_test.git"
 git diff
 ```
 
-不加参数，可以查看尚未暂存的文件更新了哪些部分。此命令比较的是工作目录中当前文件和暂存区域快照之间的差异，也就是修改之后还没有暂存起来的内容变化。下图为执行该命令后的输出。
+不加参数，可以查看尚未暂存的文件更新了哪些部分。此命令比较的是**工作目录**中当前文件和暂存区域快照之间的差异，也就是修改之后还没有暂存起来的内容变化。下图为执行该命令后的输出。
 
 ![image-20200726011820244](illustration/image-20200726011820244.png)
 
@@ -588,7 +588,7 @@ git diff --staged/--cached
 
 查看已暂存的将要添加到下次提交的内容，这条命令可以对比已暂存文件和最后一次提交的文件差异。
 
-```
+```git
 git diff <commit_id1> <commit_id2>
 ```
 
@@ -616,7 +616,7 @@ git difftool --tool-help
 
 ### 7 忽略文件
 
-一般总会有些文件无需纳入Git管理，也不希望它们总出现在未跟踪文件列表，通常都是一些自动生成的文件，比如日志、编译过程中创建的临时文件等。在这种情况下，我们可以创建一个名为.gitignore的文件，列出要忽略的文件。要养成一开始就为你的新仓库设置好.gitignore文件的习惯，以免将来误提交无用的文件。最简单的情况下，一个仓库可能只有根目录下一个.gitignore文件，它递归应用到整个仓库中。然而，子目录下也可以有额外的.gitignore文件，文件中的规则只作用于它所在的目录中。语法规则示例如下：
+一般总会有些文件无需纳入Git管理，也不希望它们总出现在未跟踪文件列表，通常都是一些自动生成的文件，比如日志、编译过程中创建的临时文件等。在这种情况下，我们可以创建一个名为.gitignore的文件，列出要忽略的文件。要养成一开始就为你的新仓库设置好.gitignore文件的习惯，以免将来误提交无用的文件。最简单的情况下，一个仓库可能只有根目录下一个.gitignore文件，它递归应用到整个仓库中。然而，子目录下也可以有额外的.gitignore文件，**文件中的规则只作用于它所在的目录中**。语法规则示例如下：
 
 ```
 *.[oa]			# 忽略所有以.o、.a结尾的文件
@@ -648,7 +648,100 @@ doc/**/*.pdf	# 忽略doc/目录及其所有子目录下的.pdf文件
 git config --global core.quotepath false
 ```
 
+### 9 打补丁patch
 
+#### 9.1 两种补丁方案
+
+Git提供了两种补丁方案，分别是patch和diff。
+
+**diff**
+
+git diff生成的是UNIX标准补丁.diff文件。只会记录文件改变的内容，不会带有commit记录信息，多个commit可以合并成一个diff文件。
+
+生成暂存区更改的补丁，命令如下：
+
+```shell
+git diff --cached > patchfile.patch
+```
+
+生成工作目录中所有更改的补丁（包括未暂存的更改），可以省略--cached选项，命令如下：
+
+```shell
+git diff > patchfile.patch
+或
+git diff --HEAD > patch.diff
+```
+
+生成某两笔提交之间所有提交的补丁，commitID1要比commitID2的提交要早，生成的补丁中除了两个ID之间的修改还包含commitID1的修改
+
+```shell
+git diff commitID1 commitID2 > patch.diff
+```
+
+将单个文件做成一个单独的补丁
+
+```shell
+git diff testfile > patch.diff
+```
+
+**patch**
+
+git format-patch生成的是Git专用.patch文件。带有记录文件改变的内容和commit记录信息，每个commit对应一个patch文件。
+
+生成某一笔提交的patch，commitID是某一次提交的ID。
+
+```shell
+git format-patch commitID -1
+```
+
+生成（包含）某笔提交之前的几次提交，commitID是要生成补丁的连续n次提交中最新的ID。
+
+```shell
+git format-patch commitID -n
+```
+
+生成某两笔提交之间的所有提交，commitID1要比commitID2的提交要早，生成的补丁除了包含两个提交之间的所有提交之外还包含commitID2的修改。
+
+```shell
+git format-patch commitID1..commitID2
+```
+
+生成某笔提交以后的所有提交补丁，生成的补丁不包含指定的commitID。
+
+```shell
+git format-patch commitID
+```
+
+**apply**
+
+要应用补丁，可以使用如下命令。
+
+```shell
+git apply patchfile.patch
+git apply patchfile.diff
+```
+
+在打入之前也可以先检查patch/diff是否能正常打入。
+
+```shell
+git apply --check file.patch
+git apply --check file.diff
+```
+
+如果在合入patch的过程中报错了，可以使用下面的命令：
+
+```shell
+git apply --reject file.patch
+git apply --reject file.diff
+```
+
+上面的命令会自动合入不冲突的代码，然后保留冲突的部分，同时会生成后缀为.rej的文件，用于保存没有合并进去的部分，可以参考这个进行冲突解决。
+
+解决完冲入后，删除后缀为.rej文件，并执行git add .添加改动到暂存区。
+
+最后执行git am --resolved或者git am --continue
+
+**备注**：在打入patch冲突时，可以执行git am --skip跳过此次冲突，也可以执行git am --abort回退打入patch的动作，还原到操作前状态。
 
 ## 二 分支
 
